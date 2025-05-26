@@ -1,2 +1,4 @@
 # はじめてのリポジトリ
 # mugitya
+kimitogomenn
+
