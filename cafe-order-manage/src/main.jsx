@@ -7,7 +7,7 @@ import ManageSignup from './manageSignup'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* <ManageSignin /> */}
-    <ManageSignup />
+    <ManageSignin />
+    {/* <ManageSignup /> */}
   </StrictMode>,
 )
