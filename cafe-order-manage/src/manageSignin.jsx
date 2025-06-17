@@ -3,8 +3,8 @@ function ManageSignin(){
         <>
             <div className="h-screen bg-gray-200">
                 <div className="flex h-screen items-center justify-center">
-                    <div  className="bg-white rounded">
-                        <div className="text-xl text-blue-700 p-2">管理者としてログイン</div>
+                    <div  className="bg-white rounded w-1/2">
+                        <div className="flex justify-center text-xl text-blue-700 p-2">管理者としてログイン</div>
                         <div className="px-2 pb-2">
                             <div className="text-xs">メールアドレス</div>
                             <div>
@@ -13,6 +13,12 @@ function ManageSignin(){
                         </div>
                         <div className="px-2 pb-2">
                             <div className="text-xs">パスワード</div>
+                            <div>
+                                <input type="password" placeholder="KosenTarou-01" className="w-full rounded border border-gray-500"/>
+                            </div>
+                        </div>
+                        <div className="px-2 pb-2">
+                            <div className="text-xs">パスワード（確認用）</div>
                             <div>
                                 <input type="password" placeholder="KosenTarou-01" className="w-full rounded border border-gray-500"/>
                             </div>
