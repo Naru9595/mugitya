@@ -3,8 +3,8 @@ function ManageSignup(){
         <>
             <div className="h-screen bg-gray-200">
                 <div className="flex h-screen items-center justify-center">
-                    <div  className="bg-white rounded w-1/2">
-                        <div className="text-xl text-blue-700 p-2">管理者としてアカウント登録</div>
+                    <div  className="bg-white rounded">
+                        <div className="text-xl text-blue-700 p-2 mx-2">管理者としてアカウント登録</div>
                         <div className="px-2 pb-2">
                             <div className="text-xs">メールアドレス</div>
                             <div>

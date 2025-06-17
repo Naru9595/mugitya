@@ -3,8 +3,8 @@ function ManageSignin(){
         <>
             <div className="h-screen bg-gray-200">
                 <div className="flex h-screen items-center justify-center">
-                    <div  className="bg-white rounded w-1/2">
-                        <div className="flex justify-center text-xl text-blue-700 p-2">管理者としてログイン</div>
+                    <div  className="bg-white rounded w-auto">
+                        <div className="flex justify-center text-xl text-blue-700 p-2 mx-10">管理者としてログイン</div>
                         <div className="px-2 pb-2">
                             <div className="text-xs">メールアドレス</div>
                             <div>
