@@ -17,12 +17,6 @@ function ManageSignin(){
                                 <input type="password" placeholder="KosenTarou-01" className="w-full rounded border border-gray-500"/>
                             </div>
                         </div>
-                        <div className="px-2 pb-2">
-                            <div className="text-xs">パスワード（確認用）</div>
-                            <div>
-                                <input type="password" placeholder="KosenTarou-01" className="w-full rounded border border-gray-500"/>
-                            </div>
-                        </div>
                         <div className="flex justify-center text-sm rounded mx-2 mt-2 mb-3 py-1 bg-blue-500 hover:bg-blue-600">
                             <button>
                                 ログイン
