@@ -9,7 +9,7 @@ import ManageSidebar from './manageSidebar'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     {/* <ManageSignin /> */}
-    {/* <ManageSignup /> */}
-    <ManageSidebar/>
+    <ManageSignup />
+    {/* <ManageSidebar/> */}
   </StrictMode>,
 )
