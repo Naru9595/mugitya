@@ -1,16 +1,17 @@
 import ManageSidebar from '../component/manageSidebar'
 
-function SalesAnalyze(){
+
+function ManageSetting(){
     return(
         <>
             <div className="flex">
                 <ManageSidebar/>
                 <div className="h-screen m-4 text-lg font-bold">
-                    売り上げ分析
+                    設定
                 </div>
             </div>
         </>
     )
 }
 
-export default SalesAnalyze
+export default ManageSetting
