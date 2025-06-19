@@ -17,8 +17,8 @@ function ManageSidebar(){
                 <div className="p-4 text-xs hover:bg-slate-700">
                     <button>設定</button>
                 </div>
-                <div className="p-4 absolute bottom-4 text-xs">
-                    <div>kosentarou@gmail.com</div>
+                <div className="p-4 absolute bottom-4 [font-size:10px]">
+                    <div>k21200hw@apps.kct.ac.jp</div>
                     <div className="text-red-500 hover:text-red-400">
                         <button>ログアウト</button>
                     </div>
