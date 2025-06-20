@@ -10,6 +10,9 @@ import MenuManage from './manage/menuManage/page'
 import OrderManage from './manage/orderManage/page'
 import SalesAnalyze from './manage/salesAnalyze/page'
 import ManageSetting from './manage/manageSetting/page'
+import UserSignin from './user/userSignin/page'
+import UserSignup from './user/userSignup/page'
+import UserMenu from './user/userMenu/page'
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
           <Route path="/orderManage" element={<OrderManage/>}/>
           <Route path="/salesAnalyze" element={<SalesAnalyze/>}/>
           <Route path="/manageSetting" element={<ManageSetting/>}/>
+          <Route path="/userSignin" element={<UserSignin/>}/>
+          <Route path="/userSignup" element={<UserSignup/>}/>
+          <Route path="/userMenu" element={<UserMenu/>}/>
         </Routes>
       </Router>
     </>
