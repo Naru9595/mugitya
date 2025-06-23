@@ -26,7 +26,7 @@ function ManageSidebar(){
                     </a>
                 </div>
                 <div className="p-4 absolute bottom-4 text-xxs">
-                    <div>k21200hw@apps.kct.ac.jp</div>
+                    <div>k00000xx@xxxx.xxx.ac.jp</div>
                     <div className="w-20 text-red-500 hover:text-red-400">
                         <button>ログアウト</button>
                     </div>
