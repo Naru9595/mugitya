@@ -10,7 +10,7 @@ import MenuManage from './manage/menuManage/page'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App/>
-    <ManageSignin />
+    {/* <ManageSignin /> */}
     {/* <ManageSignup /> */}
     {/* <ManageSidebar/> */}
   </StrictMode>,
