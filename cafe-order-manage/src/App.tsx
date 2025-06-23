@@ -3,15 +3,15 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // import './App.css'
 import './index.css'
-import ManageSignin from "../../cafe-order-manage/src/manage/manageSignin/page"
-import ManageSignup from "../../cafe-order-manage/src/manage/manageSignup/page"
-import MenuManage from '../../cafe-order-manage/src/manage/menuManage/page'
-import OrderManage from '../../cafe-order-manage/src/manage/orderManage/page'
-import SalesAnalyze from '../../cafe-order-manage/src/manage/salesAnalyze/page'
-import ManageSetting from '../../cafe-order-manage/src/manage/manageSetting/page'
-import UserSignin from '../../cafe-order-manage/src/user/userSignin/page'
-import UserSignup from '../../cafe-order-manage/src/user/userSignup/page'
-import UserMenu from '../../cafe-order-manage/src/user/userMenu/page'
+import ManageSignin from "./manage/manageSignin/page"
+import ManageSignup from "./manage/manageSignup/page"
+import MenuManage from './manage/menuManage/page'
+import OrderManage from './manage/orderManage/page'
+import SalesAnalyze from './manage/salesAnalyze/page'
+import ManageSetting from './manage/manageSetting/page'
+import UserSignin from './user/userSignin/page'
+import UserSignup from './user/userSignup/page'
+import UserMenu from './user/userMenu/page'
 
 function App() {
   return (
