@@ -1,18 +1,19 @@
 import ManageSidebar from '../component/manageSidebar'
 
-function MenuManage(){
+
+function ManageSetting(){
     return(
         <>
             <div className="flex">
                 <div className="fixed top-0 left-0">
                     <ManageSidebar/>
                 </div>
-                <div className="h-screen m-4 ml-44 text-lg font-bold">
-                    メニュー・在庫管理
+                <div className="m-4 ml-44 text-lg font-bold">
+                    設定
                 </div>
             </div>
         </>
     )
 }
 
-export default MenuManage
+export default ManageSetting
