@@ -2,11 +2,12 @@
 
 import { Order } from '../../orders/entities/order.entity'; // Orderエンティティをインポート
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+//import { User } from '../../../../types/api.types' (エラーが出るからコメントアウトしてます)
+//(修正予定)
 
 // UserRole Enum ... (変更なし)
 export enum UserRole {
   CUSTOMER = 'customer',
-  STAFF = 'staff',
   ADMIN = 'admin',
 }
 
@@ -41,4 +42,7 @@ export class User {
   
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column()
+  point: number; // ユーザーのポイント（任意で追加）
 }

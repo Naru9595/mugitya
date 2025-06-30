@@ -6,7 +6,7 @@ export class CreateUserDTO {
   email: string;
 
   @IsString()
-  @MinLength(6) // パスワードは最低6文字以上
+  @MinLength(8) // パスワードは最低8文字以上（UpdateUserDTOと統一）
   @IsAlphanumeric('en-US', {
     message: 'パスワードは英字と数字のみ使用できます'
   })
