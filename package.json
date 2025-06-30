@@ -1,7 +1,11 @@
 {
   "dependencies": {
     "@nestjs/typeorm": "^11.0.0",
+    "bcrypt": "^6.0.0",
     "mysql2": "^3.14.1",
     "typeorm": "^0.3.25"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2"
   }
 }
