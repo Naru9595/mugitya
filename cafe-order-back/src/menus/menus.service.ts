@@ -1,40 +1,53 @@
 // src/menus/menus.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateMenuDto } from './dto/create-menu.dto';
+import { UpdateMenuDto } from './dto/update-menu.dto';
 import { Menu } from './entities/menu.entity';
 
 @Injectable()
 export class MenusService {
   constructor(
     @InjectRepository(Menu)
-    private menusRepository: Repository<Menu>,
+    private readonly menuRepository: Repository<Menu>,
   ) {}
 
-  // 新しいメニューを作成
-  create(createMenuDto: CreateMenuDto) {
-    const newMenu = this.menusRepository.create(createMenuDto);
-    return this.menusRepository.save(newMenu);
+  // 【管理者向け】新しいメニューを作成
+  create(createMenuDto: CreateMenuDto): Promise<Menu> {
+    const menu = this.menuRepository.create(createMenuDto);
+    return this.menuRepository.save(menu);
   }
 
-  // 全てのメニューを取得
-  findAll() {
-    return this.menusRepository.find();
+  // 【ユーザー・管理者共通】全メニューを取得
+  findAll(): Promise<Menu[]> {
+    return this.menuRepository.find();
   }
 
-  // IDで特定のメニューを取得
-  findOne(id: number) {
-    return this.menusRepository.findOneBy({ id });
-  }
-
-  // IDで特定のメニューを削除
-  async remove(id: number) {
-    // まずは存在確認（任意ですが丁寧）
-    const menu = await this.findOne(id);
+  // 【ユーザー・管理者共通】IDで特定のメニューを取得
+  async findOne(id: number): Promise<Menu> {
+    const menu = await this.menuRepository.findOneBy({ id });
     if (!menu) {
-      return null; // or throw an error
+      throw new NotFoundException(`ID ${id} のメニューが見つかりません。`);
     }
-    return this.menusRepository.remove(menu);
+    return menu;
+  }
+
+  // 【管理者向け】メニュー情報を更新
+  async update(id: number, updateMenuDto: UpdateMenuDto): Promise<Menu> {
+    const menu = await this.menuRepository.preload({
+      id,
+      ...updateMenuDto,
+    });
+    if (!menu) {
+      throw new NotFoundException(`ID ${id} のメニューが見つかりません。`);
+    }
+    return this.menuRepository.save(menu);
+  }
+
+  // 【管理者向け】メニューを削除
+  async remove(id: number): Promise<Menu> {
+    const menu = await this.findOne(id);
+    return this.menuRepository.remove(menu);
   }
 }
