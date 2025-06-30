@@ -1,4 +1,20 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateMenuDto } from './create-menu.dto';
+// src/menus/dto/update-menu.dto.ts
+import { IsString, IsNumber, IsOptional, IsBoolean } from 'class-validator';
 
-export class UpdateMenuDto extends PartialType(CreateMenuDto) {}
+export class UpdateMenuDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsNumber()
+  @IsOptional()
+  price?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isAvailable?: boolean;
+}

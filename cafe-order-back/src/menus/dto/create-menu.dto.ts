@@ -1,7 +1,20 @@
 // src/menus/dto/create-menu.dto.ts
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsBoolean } from 'class-validator';
+
 export class CreateMenuDto {
+  @IsString()
+  @IsNotEmpty()
   name: string;
+
+  @IsString()
+  @IsOptional() // 省略可能
+  description?: string;
+
+  @IsNumber()
+  @IsNotEmpty()
   price: number;
-  calorie: number;
-  is_available?: boolean; // ? をつけると省略可能な項目になる
+
+  @IsBoolean()
+  @IsOptional()
+  isAvailable?: boolean;
 }
