@@ -24,7 +24,7 @@ function App() {
           <Route path="/orderManage" element={<OrderManage/>}/>
           <Route path="/salesAnalyze" element={<SalesAnalyze/>}/>
           <Route path="/manageSetting" element={<ManageSetting/>}/>
-          <Route path="/userSignin" element={<UserSignin/>}/>
+          <Route path="/Signin" element={<UserSignin/>}/>
           <Route path="/userSignup" element={<UserSignup/>}/>
           <Route path="/userMenu" element={<UserMenu/>}/>
         </Routes>
