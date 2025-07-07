@@ -1,6 +1,14 @@
-import {Controller,Get,Post,Body,Patch,
-Param,Delete,UseGuards,Req,ParseIntPipe,
-ClassSerializerInterceptor,UseInterceptors,
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
@@ -8,11 +16,10 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole, User } from './entities/user.entity'; // User をインポート追加
+import { UserRole, User } from './entities/user.entity';
 import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 
 @Controller('users')
-// @UseInterceptors(ClassSerializerInterceptor) // Userエンティティの@Exclude()を有効にする簡単な方法
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -20,9 +27,10 @@ export class UsersController {
    * (公開) 新規ユーザー登録
    */
   @Post()
-  async create(@Body() createUserDto: CreateUserDTO): Promise<User> {
-    // パスワードハッシュはサービス層で処理される
-    // ★注意: 本来は UserResponseDTO に変換して返すのが最も安全
+  // ★修正1: 返り値の型をサービスと一致させる
+  async create(
+    @Body() createUserDto: CreateUserDTO,
+  ): Promise<Omit<User, 'password_hash'>> {
     return this.usersService.create(createUserDto);
   }
 
@@ -31,36 +39,33 @@ export class UsersController {
    */
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN) // 管理者と店員がアクセス可能
+  @Roles(UserRole.ADMIN)
   async findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
-  
+
   /**
    * (ログインユーザー自身) 自分の情報を取得
    */
   @Get('me')
-  @UseGuards(JwtAuthGuard) // ログインさえしていればOK
+  @UseGuards(JwtAuthGuard)
   async findMe(@Req() req: AuthenticatedRequest): Promise<User> {
-    // Guardによって req.user には認証済みユーザー情報が格納されている
     const userId = req.user.id;
     return this.usersService.findOne(userId);
   }
 
   /**
-   * (管理者・店員のみ) IDを指定して特定のユーザー情報を取得
+   * (管理者のみ) IDを指定して特定のユーザー情報を取得
    */
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
-    // ParseIntPipe は :id が数値であることを保証する
     return this.usersService.findOne(id);
   }
 
   /**
    * (ログインユーザー自身 or 管理者) ユーザー情報を更新
-   * 権限チェックはサービス層で行う
    */
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
@@ -69,7 +74,8 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDTO,
     @Req() req: AuthenticatedRequest,
   ): Promise<User> {
-    const requester = req.user; // リクエストを行ったユーザー
+    const requester = req.user;
+    // サービスにrequesterを渡す（サービス側の修正が必要）
     return this.usersService.update(id, updateUserDto, requester);
   }
 
@@ -79,7 +85,8 @@ export class UsersController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  // ★修正3: 返り値の型をサービスと一致させる
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
     return this.usersService.remove(id);
   }
 }
