@@ -29,12 +29,12 @@ export class Order {
   // --- Userとのリレーション定義 (多対1) ---
   // 1つの注文は、1人のユーザーに紐づく
   // { eager: true } を付けると、Orderを検索した際に自動でUser情報も取得してくれる
-  @ManyToOne(() => User, user => user.orders, { eager: true })
+  @ManyToOne(() => User, user => user.orders)
   user: User;
 
   // --- Menuとのリレーション定義 (多対多) ---
   // 1つの注文には、複数のメニューが含まれる
-  @ManyToMany(() => Menu, menu => menu.orders, { eager: true })
+  @ManyToMany(() => Menu, menu => menu.orders)
   @JoinTable() // このデコレータが中間テーブルの作成を指示する
   menus: Menu[];
   
