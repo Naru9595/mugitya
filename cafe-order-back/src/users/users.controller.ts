@@ -5,12 +5,11 @@ ClassSerializerInterceptor,UseInterceptors,
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-//import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-//import { RolesGuard } from '../auth/guards/roles.guard';
-//import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from './entities/user.entity';
-//import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
-//実装でき次第コメントアウト解除*
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole, User } from './entities/user.entity'; // User をインポート追加
+import { AuthenticatedRequest } from '../auth/interfaces/authenticated-request.interface';
 
 @Controller('users')
 // @UseInterceptors(ClassSerializerInterceptor) // Userエンティティの@Exclude()を有効にする簡単な方法
