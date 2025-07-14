@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
-const API_URL = 'http://localhost:3306';
+const API_URL = 'http://localhost:3000'; // バックエンドのURL
 
 const UserSignup: React.FC = () => {
-  // ★ name の state を削除
+  // ★ nameのstateを削除
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,7 +30,7 @@ const UserSignup: React.FC = () => {
     }
 
     try {
-      // ★ バックエンドには email の値を name としても渡す
+      // ★ バックエンドにはemailの値をnameとしても渡す
       await axios.post(`${API_URL}/users/register`, {
         name: email, // nameとしてemailを渡す
         email: email,
@@ -39,7 +39,6 @@ const UserSignup: React.FC = () => {
 
       setSuccess('登録が完了しました！自動的にログインします...');
 
-      // 自動ログイン処理
       const loginResponse = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
@@ -47,7 +46,6 @@ const UserSignup: React.FC = () => {
       
       localStorage.setItem('access_token', loginResponse.data.access_token);
 
-      // ページ遷移
       setTimeout(() => {
         navigate('/userMenu');
       }, 2000);
@@ -72,7 +70,7 @@ const UserSignup: React.FC = () => {
             {error && <div className="text-xs text-red-500 text-center pb-2">{error}</div>}
             {success && <div className="text-xs text-green-500 text-center pb-2">{success}</div>}
             
-            {/* ★ お名前の入力欄をここから削除 */}
+            {/* ★ お名前の入力欄をここから削除しました */}
 
             <div className="px-2 pb-2">
               <div className="text-xs">メールアドレス</div>
@@ -92,7 +90,7 @@ const UserSignup: React.FC = () => {
               <div>
                 <input
                   type="password"
-                  placeholder="KosenTarou-01"
+                  placeholder="********"
                   className="w-full rounded border border-gray-500 p-1"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -105,7 +103,7 @@ const UserSignup: React.FC = () => {
               <div>
                 <input
                   type="password"
-                  placeholder="KosenTarou-01"
+                  placeholder="********"
                   className="w-full rounded border border-gray-500 p-1"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
