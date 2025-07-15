@@ -43,6 +43,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column()
+  @Column({default: 0})
   point: number; // ユーザーのポイント（任意で追加）
 }

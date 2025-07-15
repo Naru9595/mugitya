@@ -1,52 +1,43 @@
-// backend/src/app.module.ts
-
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config'; // ← importされているか確認
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { OrdersModule } from './orders/orders.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 import { MenusModule } from './menus/menus.module';
-// backend/src/app.module.ts
-
-// ...他のimport文の下に、以下の3行を追加してください
+import { OrdersModule } from './orders/orders.module';
 import { User } from './users/entities/user.entity';
 import { Menu } from './menus/entities/menu.entity';
 import { Order } from './orders/entities/order.entity';
-// menusモジュールなどを追加した場合は、そのimport文もここにある
 
 @Module({
   imports: [
     // .env ファイルを読み込むための設定
     ConfigModule.forRoot({
-      isGlobal: true, 
+      isGlobal: true, // アプリケーション全体でConfigModuleを使えるようにする
+      envFilePath: '.env', // .envファイルを指定
     }),
     
-    // TypeORMの接続設定（ここがXAMPP用の古い設定から変わる）
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT || '3306', 10),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
-      entities: [User,Menu,Order],
-      synchronize: true,
+    // データベース接続設定
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get<string>('DB_HOST'), // .envのキーと一致させる
+        port: configService.get<number>('DB_PORT'), // .envのキーと一致させる
+        username: configService.get<string>('DB_USERNAME'), // .envのキーと一致させる
+        password: configService.get<string>('MYSQL_ROOT_PASSWORD'), // .envのキーと一致させる
+        database: configService.get<string>('DB_DATABASE_NAME'), // .envのキーと一致させる
+        entities: [User, Menu, Order],
+        synchronize: true,
+      }),
     }),
-    
-    UsersModule,
-    
-    OrdersModule,
-    
     AuthModule,
-    
+    UsersModule,
     MenusModule,
-
-    // menusモジュールなど、他のモジュール
+    OrdersModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

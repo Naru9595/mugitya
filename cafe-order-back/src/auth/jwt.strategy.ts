@@ -1,24 +1,39 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from './../users/users.service'; // ★ UsersServiceをインポート
+import { User } from './../users/entities/user.entity'; // ★ Userエンティティをインポート
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(
+    // ★★★ここから修正★★★
+    // データベースを検索するためにUsersServiceを注入します
+    private readonly usersService: UsersService,
+  ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // BearerトークンからJWTを抽出
-      ignoreExpiration: false, // トークンの有効期限をチェックする
-      secretOrKey: 'KIMITO_SICK', // auth.module.tsと同じ秘密鍵を使用
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: 'KIMITO_SICK', // ご要望の通り、秘密鍵はそのままにします
     });
   }
 
-  async validate(payload: any) {
-    // payloadにはJWTに埋め込んだ情報（email, sub (userId), role）が含まれる
-    // auth.service.tsのloginメソッドで設定したペイロードと一致させる
-    return { 
-      id: payload.sub, 
-      email: payload.email, 
-      role: payload.role 
-    };
+  /**
+   * トークンの署名検証が成功した後に呼び出されるメソッドです。
+   * @param payload - JWTのペイロード (例: { sub: userId, email: ... })
+   * @returns データベースから取得したユーザーオブジェクト
+   */
+  async validate(payload: { sub: number; email: string }): Promise<User> {
+    // ペイロードのsub（ユーザーID）を元に、データベースから最新のユーザー情報を検索します
+    const user = await this.usersService.findOne(payload.sub);
+    
+    // もしユーザーが存在しなければ、トークンは有効でも認証は失敗させます
+    if (!user) {
+      throw new UnauthorizedException('ユーザーが見つかりませんでした。');
+    }
+    
+    // このメソッドが返した完全なUserオブジェクトが、リクエストオブジェクト(req.user)に格納されます
+    return user;
   }
+  // ★★★ここまで修正★★★
 }

@@ -17,8 +17,8 @@ export class Menu {
   @Column() // 価格
   price: number;
 
-  @Column({ default: true }) // 現在注文可能か
-  isAvailable: boolean;
+  @Column({ type: 'int', default: 0}) // 現在注文可能か
+  stock: number;
 
   // Orderとの多対多リレーション（後述）
   // 1つのメニューは多くの注文に含まれる可能性がある

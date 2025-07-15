@@ -2,7 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-  ForbiddenException, // ForbiddenExceptionをインポート
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,29 +18,37 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
+  // --- ★★★ここを修正します★★★ ---
   async create(createUserDto: CreateUserDTO): Promise<Omit<User, 'password_hash'>> {
     const { email, password } = createUserDto;
 
+    // メールアドレスの重複チェック
     const existingUser = await this.usersRepository.findOneBy({ email });
     if (existingUser) {
       throw new ConflictException('このメールアドレスは既に使用されています');
     }
 
+    // パスワードをハッシュ化
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(password, saltRounds);
 
+    // ★修正: ...createUserDto を使わず、プロパティを明示的にマッピングします。
+    // これにより、DTOの'password'プロパティがEntityに紛れ込むのを防ぎます。
     const newUser = this.usersRepository.create({
-      email,
-      password_hash,
-      role: UserRole.CUSTOMER,
+      email: email,
+      password_hash: password_hash,
+      role: UserRole.CUSTOMER, // デフォルトロールを設定
     });
-    
+
+    // ユーザーをデータベースに保存
     const savedUser = await this.usersRepository.save(newUser);
     
+    // パスワードハッシュをレスポンスから除外して返す
     const { password_hash: _, ...result } = savedUser;
     return result;
   }
-
+  
+  // --- 他メソッドは変更なし ---
   async findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
@@ -57,36 +65,29 @@ export class UsersService {
     return this.usersRepository.findOneBy({ email });
   }
 
-  // ★修正2: updateメソッドのシグネチャとロジックを修正
   async update(
     id: number,
     updateUserDto: UpdateUserDTO,
-    requester: User, // requesterを引数として受け取る
+    requester: User,
   ): Promise<User> {
-    // --- 権限チェック ---
     const isRequesterAdmin = requester.role === UserRole.ADMIN;
     const isUpdatingSelf = requester.id === id;
 
     if (!isRequesterAdmin && !isUpdatingSelf) {
       throw new ForbiddenException('このユーザー情報を更新する権限がありません。');
     }
-    // --- 権限チェックここまで ---
-
+    
     const userToUpdate = await this.findOne(id);
 
-    // emailの更新（もしあれば）
     if (updateUserDto.email) {
-      // 必要であれば、ここでもemailの重複チェックを追加する
       userToUpdate.email = updateUserDto.email;
     }
     
-    // パスワードの更新（もしあれば）
     if (updateUserDto.password) {
       const saltRounds = 10;
       userToUpdate.password_hash = await bcrypt.hash(updateUserDto.password, saltRounds);
     }
     
-    // roleの更新（管理者のみ可能）
     if (updateUserDto.role && isRequesterAdmin) {
         userToUpdate.role = updateUserDto.role;
     } else if (updateUserDto.role && !isRequesterAdmin) {
@@ -102,7 +103,6 @@ export class UsersService {
     return { message: `ID "${id}" のユーザーを削除しました` };
   }
 
-  // ロール確認メソッドは変更なし
   async checkUserRole(userId: number, role: UserRole): Promise<boolean> {
     const user = await this.findOne(userId);
     return user.role === role;

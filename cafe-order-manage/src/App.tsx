@@ -1,36 +1,37 @@
-// import { useState } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './AuthContext';
+import { CartProvider } from './cartcontext'; // ★ CartProviderをインポート
+import Home from './components/home';
+import Login from './login';
+import Register from './register';
+import './App.css';
 
-// import './App.css'
-import './index.css'
-import ManageSignin from "./manage/manageSignin/page"
-import ManageSignup from "./manage/manageSignup/page"
-import MenuManage from './manage/menuManage/page'
-import OrderManage from './manage/orderManage/page'
-import SalesAnalyze from './manage/salesAnalyze/page'
-import ManageSetting from './manage/manageSetting/page'
-import UserSignin from './user/userSignin/page'
-import UserSignup from './user/userSignup/page'
-import UserMenu from './user/userMenu/page'
+const AppContent = () => {
+  const { user } = useAuth();
+  const [view, setView] = useState<'login' | 'register'>('login');
 
-function App() {
+  if (user) {
+    return <Home />;
+  }
+
+  return view === 'login' ? (
+    <Login onSwitchToRegister={() => setView('register')} />
+  ) : (
+    <Register onSwitchToLogin={() => setView('login')} />
+  );
+};
+
+const App = () => {
   return (
-    <>
-      <Router>
-        <Routes>
-          <Route path="/manageSignin" element={<ManageSignin/>}/>
-          <Route path="/manageSignup" element={<ManageSignup/>}/>
-          <Route path="/menuManage" element={<MenuManage/>}/>
-          <Route path="/orderManage" element={<OrderManage/>}/>
-          <Route path="/salesAnalyze" element={<SalesAnalyze/>}/>
-          <Route path="/manageSetting" element={<ManageSetting/>}/>
-          <Route path="/Signin" element={<UserSignin/>}/>
-          <Route path="/userSignup" element={<UserSignup/>}/>
-          <Route path="/userMenu" element={<UserMenu/>}/>
-        </Routes>
-      </Router>
-    </>
-  )
-}
+    <AuthProvider>
+      {/* ★ CartProviderでラップする */}
+      <CartProvider>
+        <div className="App">
+          <AppContent />
+        </div>
+      </CartProvider>
+    </AuthProvider>
+  );
+};
 
-export default App
+export default App;

@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthContext';
 
-const Login = () => {
+interface LoginProps {
+  onSwitchToRegister: () => void;
+}
+
+const Login = ({ onSwitchToRegister }: LoginProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,6 +24,7 @@ const Login = () => {
   };
 
   return (
+    <div>
     <form onSubmit={handleSubmit}>
       <h2>ログイン</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -43,8 +48,16 @@ const Login = () => {
           required
         />
       </div>
+      
       <button type="submit">ログイン</button>
     </form>
+    <p>
+      アカウントをお持ちでないですか？{' '}
+      <button onClick={onSwitchToRegister} style={{ all: 'unset', color: 'blue', cursor: 'pointer', textDecoration: 'underline' }}>
+        新規登録はこちら
+      </button>
+    </p>
+    </div>
   );
 };
 
