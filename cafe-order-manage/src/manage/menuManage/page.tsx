@@ -39,7 +39,8 @@ function AddMenu({setAddClicked}:{setAddClicked: () => void}){
                     </button>
                     <button 
                         className="text-white bg-blue-500 hover:bg-blue-600 px-4 mx-10 mt-5 rounded"
-                        >
+                        onClick={setAddClicked}
+                    >
                             保存
                     </button>
                 </div>
@@ -85,7 +86,8 @@ function EditMenu({setEditClicked}:{setEditClicked: () => void}){
                     </button>
                     <button 
                         className="text-white bg-blue-500 hover:bg-blue-600 px-4 mx-10 mt-5 rounded"
-                        >
+                        onClick={setEditClicked}
+                    >
                             保存
                     </button>
                 </div>
