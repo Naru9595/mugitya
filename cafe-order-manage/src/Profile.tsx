@@ -7,7 +7,7 @@ const Profile = () => {
 
   // ユーザーがログインしていない場合は、ログインフォームを表示
   if (!user) {
-    return <Login />;
+    return <Login onSwitchToRegister={() => {}} />;
   }
 
   // ログインしている場合は、ユーザー情報を表示
