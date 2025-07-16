@@ -39,7 +39,8 @@ function AddMenu({setAddClicked}:{setAddClicked: () => void}){
                     </button>
                     <button 
                         className="text-white bg-blue-500 hover:bg-blue-600 px-4 mx-10 mt-5 rounded"
-                        >
+                        onClick={setAddClicked}
+                    >
                             保存
                     </button>
                 </div>
@@ -85,7 +86,8 @@ function EditMenu({setEditClicked}:{setEditClicked: () => void}){
                     </button>
                     <button 
                         className="text-white bg-blue-500 hover:bg-blue-600 px-4 mx-10 mt-5 rounded"
-                        >
+                        onClick={setEditClicked}
+                    >
                             保存
                     </button>
                 </div>
@@ -108,26 +110,26 @@ function MenuManage(){
         {
             id: 'p1', // 一意のキーのためにIDを追加
             name: "唐揚げ定食",
-            price: "500円",
+            price: 500,
             stock: 30
         },
         {
             id: 'p2',
             name: "カレーライス",
-            price: "500円",
+            price: 500,
             stock: 20
         },
         {
             id: 'p3',
             name: "豚骨ラーメン",
-            price: "800円",
+            price: 800,
             stock: 15
         },
         {
             id: 'p4',
             name: "肉うどん",
-            price: "400円",
-            stock: 20
+            price: 400,
+            stock: 0
         }
     ];
 // テストなので直接参照
@@ -194,7 +196,7 @@ function MenuManage(){
                                         {product.name}
                                     </div>
                                     <div className="flex-1 text-left px-2">
-                                        {product.price}
+                                        {product.price}円
                                     </div>
                                     <div className="flex-1 text-left px-2">
                                         {product.stock}
