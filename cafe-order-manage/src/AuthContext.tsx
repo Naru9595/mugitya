@@ -1,9 +1,7 @@
-import React, { createContext, useState, useContext, useEffect } from 'react'; //何かしら不要やけどめんどくさいので未修正
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import apiClient from './api';
 
-// --- ★ここから変更 ---
-// Userの型定義をこのファイル内に直接記述する
 interface User {
   id: number;
   email: string;
@@ -11,35 +9,32 @@ interface User {
   createdAt: string;
   updatedAt: string;
 }
-// --- ★ここまで変更 ---
 
-// コンテキストが提供する値の型定義
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => void;
   isLoading: boolean;
 }
 
-// コンテキストの作成
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// コンテキストを提供するプロバイダーコンポーネント
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // useEffectや他のロジックは変更なし...
   useEffect(() => {
     const checkUser = async () => {
       const token = localStorage.getItem('accessToken');
       if (token) {
         try {
-          const response = await apiClient.get<User>('/users/me'); // APIレスポンスの型を指定
+          apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          const response = await apiClient.get<User>('/users/profile');
           setUser(response.data);
         } catch (error) {
           console.error('Failed to fetch user', error);
           localStorage.removeItem('accessToken');
+          delete apiClient.defaults.headers.common['Authorization'];
         }
       }
       setIsLoading(false);
@@ -47,15 +42,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUser();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User> => {
     try {
       const response = await apiClient.post('/auth/login', { email, password });
       const { access_token } = response.data;
       
       localStorage.setItem('accessToken', access_token);
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
 
-      const userResponse = await apiClient.get<User>('/users/me'); // APIレスポンスの型を指定
+      const userResponse = await apiClient.get<User>('/users/profile');
       setUser(userResponse.data);
+      return userResponse.data;
 
     } catch (error) {
       console.error('Login failed', error);
@@ -65,6 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem('accessToken');
+    delete apiClient.defaults.headers.common['Authorization'];
     setUser(null);
   };
 
@@ -77,7 +75,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// コンテキストを簡単に利用するためのカスタムフック
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

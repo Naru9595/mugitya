@@ -92,6 +92,11 @@ export class UsersService {
     return { message: `ID "${id}" のユーザーを削除しました` };
   }
 
+  async checkUserRole(userID: number, role: UserRole): Promise<boolean> {
+    const user = await this.findOne(userID);
+    return user.role===role;
+  }
+
   async isAdmin(userId: number): Promise<boolean> {
     const user = await this.usersRepository.findOneBy({ id: userId }); // 変数名を合わせて修正
     if (!user) {

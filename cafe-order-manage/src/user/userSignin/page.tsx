@@ -1,49 +1,56 @@
-// frontend/src/components/LoginForm.tsx
+// frontend/src/components/UserSignin.tsx
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom'; // ★ a タグの代わりに Link をインポート
+import { useNavigate, Link } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; // ★ jwt-decodeをインポート
 
-const API_URL = 'http://localhost:3306';
+const API_URL = 'http://localhost:3000';
 
 const UserSignin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false); // ★ ローディング状態を追加
+
+  const navigate = useNavigate(); // ★ 画面遷移用のフック
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
+    setIsLoading(true); // ★ ローディング開始
 
     try {
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
       });
+      
       const { access_token } = response.data;
-      setIsLoggedIn(true);
       localStorage.setItem('access_token', access_token);
-      console.log('ログイン成功！ トークン:', access_token);
+      console.log('ログイン成功！');
+
+      // --- ★★★ ここからが修正部分 ★★★ ---
+
+      // 1. トークンをデコードして、中身（ペイロード）を取り出す
+      const decodedPayload = jwtDecode<{ role: string }>(access_token);
+
+      // 2. ペイロード内のroleに応じて、遷移先を決定する
+      if (decodedPayload.role === 'admin') {
+        navigate('/menuManage'); // 管理者なら管理者ページへ
+      } else {
+        navigate('/userMenu'); // 一般ユーザーならユーザーメニューページへ
+      }
+
     } catch (err) {
       console.error('ログイン失敗:', err);
       setError('メールアドレスまたはパスワードが正しくありません。');
+    } finally {
+      setIsLoading(false); // ★ 成功・失敗どちらでもローディングを終了
     }
   };
-
-  if (isLoggedIn) {
-    // ログイン成功後の表示
-    return (
-      <div className="h-screen bg-gray-200">
-        <div className="flex h-screen items-center justify-center">
-          <div className="bg-white rounded p-10 text-center">
-            <h2 className="text-xl text-green-600 font-bold">ログイン成功！</h2>
-            <p className="mt-2">メニューページへようこそ。</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  
+  // ログイン成功後は即座に画面遷移するため、成功時の表示は不要になります
 
   return (
     <>
@@ -72,7 +79,7 @@ const UserSignin: React.FC = () => {
               <div>
                 <input
                   type="password"
-                  placeholder="KosenTarou-01"
+                  placeholder="********"
                   className="w-full rounded border border-gray-500 p-1"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -81,14 +88,13 @@ const UserSignin: React.FC = () => {
               </div>
             </div>
 
-            <button type="submit" className="flex justify-center text-sm text-white rounded mx-2 mt-2 mb-3 py-1 bg-blue-500 hover:bg-blue-600 w-[calc(100%-1rem)]">
-              ログイン
+            <button type="submit" disabled={isLoading} className="flex justify-center text-sm text-white rounded mx-2 mt-2 mb-3 py-1 bg-blue-500 hover:bg-blue-600 w-[calc(100%-1rem)] disabled:bg-gray-400">
+              {isLoading ? 'ログイン中...' : 'ログイン'}
             </button>
 
             <div className="border-t border-dashed border-gray-500">
-              {/* ★★★ a href を Link to に変更 ★★★ */}
-              <Link to="/userSignup" className="flex justify-center text-sm text-white rounded mx-2 my-3 py-1 bg-green-500 hover:bg-green-600">
-                新規登録
+              <Link to="/userSignup" className="flex justify-center text-sm text-green-500 hover:text-green-600 py-2">
+                新規登録はこちら
               </Link>
             </div>
           </form>
