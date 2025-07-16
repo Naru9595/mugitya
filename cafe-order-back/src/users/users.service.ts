@@ -1,3 +1,5 @@
+// src/users/users.service.ts
+
 import {
   Injectable,
   NotFoundException,
@@ -6,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserRole } from './entities/user.entity';
+import { User, UserRole, SafeUser } from './entities/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -18,47 +20,44 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  // --- ★★★ここを修正します★★★ ---
-  async create(createUserDto: CreateUserDTO): Promise<Omit<User, 'password_hash'>> {
-    const { email, password } = createUserDto;
+  // --- Private Helper Method (mainブランチの安全な実装を採用) ---
+  private toSafeUser(user: User): SafeUser {
+    const { password_hash, ...result } = user;
+    return result;
+  }
 
-    // メールアドレスの重複チェック
-    const existingUser = await this.usersRepository.findOneBy({ email });
+  // --- Public Methods ---
+
+  async create(createUserDto: CreateUserDTO): Promise<SafeUser> {
+    const existingUser = await this.usersRepository.findOneBy({ email: createUserDto.email });
     if (existingUser) {
       throw new ConflictException('このメールアドレスは既に使用されています');
     }
 
-    // パスワードをハッシュ化
-    const saltRounds = 10;
-    const password_hash = await bcrypt.hash(password, saltRounds);
+    const password_hash = await bcrypt.hash(createUserDto.password, 10);
 
-    // ★修正: ...createUserDto を使わず、プロパティを明示的にマッピングします。
-    // これにより、DTOの'password'プロパティがEntityに紛れ込むのを防ぎます。
     const newUser = this.usersRepository.create({
-      email: email,
-      password_hash: password_hash,
-      role: UserRole.CUSTOMER, // デフォルトロールを設定
+      ...createUserDto,
+      password_hash,
+      role: UserRole.CUSTOMER,
     });
-
-    // ユーザーをデータベースに保存
+    
     const savedUser = await this.usersRepository.save(newUser);
     
-    // パスワードハッシュをレスポンスから除外して返す
-    const { password_hash: _, ...result } = savedUser;
-    return result;
-  }
-  
-  // --- 他メソッドは変更なし ---
-  async findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    return this.toSafeUser(savedUser);
   }
 
-  async findOne(id: number): Promise<User> {
+  async findAll(): Promise<SafeUser[]> {
+    const users = await this.usersRepository.find();
+    return users.map(user => this.toSafeUser(user));
+  }
+
+  async findOne(id: number): Promise<SafeUser> {
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
     }
-    return user;
+    return this.toSafeUser(user);
   }
   
   async findByEmail(email: string): Promise<User | null> {
@@ -68,47 +67,50 @@ export class UsersService {
   async update(
     id: number,
     updateUserDto: UpdateUserDTO,
-    requester: User,
-  ): Promise<User> {
+    requester: SafeUser, // mainブランチの安全な型定義を採用
+  ): Promise<SafeUser> {
+    const userToUpdate = await this.usersRepository.findOneBy({ id });
+    if (!userToUpdate) {
+        throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
+    }
+
+    // --- 権限チェック (両方のブランチで共通する良いロジック) ---
     const isRequesterAdmin = requester.role === UserRole.ADMIN;
     const isUpdatingSelf = requester.id === id;
-
     if (!isRequesterAdmin && !isUpdatingSelf) {
       throw new ForbiddenException('このユーザー情報を更新する権限がありません。');
     }
-    
-    const userToUpdate = await this.findOne(id);
+    // ---
 
-    if (updateUserDto.email) {
-      userToUpdate.email = updateUserDto.email;
-    }
-    
+    // mainブランチの簡潔な更新方法を採用
+    Object.assign(userToUpdate, updateUserDto);
+
     if (updateUserDto.password) {
-      const saltRounds = 10;
-      userToUpdate.password_hash = await bcrypt.hash(updateUserDto.password, saltRounds);
+      userToUpdate.password_hash = await bcrypt.hash(updateUserDto.password, 10);
     }
     
-    if (updateUserDto.role && isRequesterAdmin) {
-        userToUpdate.role = updateUserDto.role;
-    } else if (updateUserDto.role && !isRequesterAdmin) {
+    if (updateUserDto.role && !isRequesterAdmin) {
         throw new ForbiddenException('ロールの変更は管理者のみ可能です。');
     }
 
-    return this.usersRepository.save(userToUpdate);
+    const updatedUser = await this.usersRepository.save(userToUpdate);
+    return this.toSafeUser(updatedUser);
   }
 
   async remove(id: number): Promise<{ message: string }> {
-    const user = await this.findOne(id);
-    await this.usersRepository.remove(user);
+    const userToRemove = await this.usersRepository.findOneBy({ id });
+    if (!userToRemove) {
+        throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
+    }
+    await this.usersRepository.remove(userToRemove);
     return { message: `ID "${id}" のユーザーを削除しました` };
   }
 
-  async checkUserRole(userId: number, role: UserRole): Promise<boolean> {
-    const user = await this.findOne(userId);
-    return user.role === role;
-  }
-
   async isAdmin(userId: number): Promise<boolean> {
-    return this.checkUserRole(userId, UserRole.ADMIN);
+    const user = await this.usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      return false;
+    }
+    return user.role === UserRole.ADMIN;
   }
 }

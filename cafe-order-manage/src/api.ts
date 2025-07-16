@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // NestJSサーバーのベースURL
-const API_URL = 'http://localhost:3001';
+const API_URL = 'http://localhost:3000';
 
 // Axiosのインスタンスを作成
 const apiClient = axios.create({

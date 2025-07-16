@@ -46,3 +46,5 @@ export class User {
   @Column({default: 0})
   point: number; // ユーザーのポイント（任意で追加）
 }
+
+export type SafeUser = Omit<User, 'password_hash'>;

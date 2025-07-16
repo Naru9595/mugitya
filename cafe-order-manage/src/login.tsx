@@ -16,8 +16,6 @@ const Login = ({ onSwitchToRegister }: LoginProps) => {
     setError('');
     try {
       await login(email, password);
-      // ログイン成功後の処理（例: ホームページへのリダイレクト）は
-      // AuthContextの状態変更によって自動的に行われる
     } catch (err) {
       setError('ログインに失敗しました。メールアドレスまたはパスワードを確認してください。');
     }

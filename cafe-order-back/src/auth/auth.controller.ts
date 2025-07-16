@@ -11,14 +11,12 @@ export class AuthController {
   /**
    * ログインエンドポイント
    * POST /auth/login
-   * @param req - リクエストオブジェクト
-   * @param loginDto - リクエストボディ (実際にはGuardが使用)
    */
-  @UseGuards(LocalAuthGuard) // Passportの'local'戦略を呼び出すガード
+  @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(
-    @Req() req: AuthenticatedRequest,
-    @Body() loginDto: LoginDTO, // DTOはバリデーションとドキュメンテーションのために記述
+    @Req() req: AuthenticatedRequest, // ★ 型付けされたリクエストオブジェクトを受け取る
+    @Body() loginDto: LoginDTO,       // ★ バリデーションが適用されるDTO
   ): Promise<{ access_token: string }> {
     // LocalAuthGuardが認証に成功すると、req.userに検証済みのユーザー情報がセットされます。
     // このユーザー情報を使って、AuthServiceがJWT（アクセストークン）を生成します。

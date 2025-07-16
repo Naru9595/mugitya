@@ -1,17 +1,16 @@
-import { Module } from '@nestjs/common'; // ★ forwardRef のインポートを削除
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { User } from './entities/user.entity';
-// import { AuthModule } from '../auth/auth.module'; // ★ この行を削除します
+import { TypeOrmModule } from '@nestjs/typeorm'; // ★ TypeOrmModuleをインポート
+import { User } from './entities/user.entity';     // ★ Userエンティティをインポート
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    // forwardRef(() => AuthModule), // ★ この行を削除します
-  ],
+  // ★★★ この imports 配列を追加または編集します ★★★
+  imports: [TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
   providers: [UsersService],
+  // ★ UsersServiceを他のモジュールで使えるようにexportsを追加
+
   exports: [UsersService],
 })
 export class UsersModule {}

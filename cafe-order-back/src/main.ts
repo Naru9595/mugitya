@@ -1,9 +1,13 @@
+// src/main.ts
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common'; // もし使っていればインポート
 
 async function bootstrap() {
+  // 1. Nestアプリケーションのインスタンスを作成し、'app'という名前の変数に格納
   const app = await NestFactory.create(AppModule);
+
 
   // CORS設定を追加
     app.enableCors({
@@ -25,6 +29,12 @@ async function bootstrap() {
 
 
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(3001); // ポートを3001などに設定
+
+  // バリデーションパイプなど、他のグローバルな設定もこの辺りに書きます
+  app.useGlobalPipes(new ValidationPipe());
+
+  // 3. 最後に、全ての設定が完了したアプリを起動する
+  await app.listen(3000);
+
 }
 bootstrap();

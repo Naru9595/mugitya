@@ -1,14 +1,18 @@
-import { IsArray, IsNotEmpty, IsNumber } from 'class-validator';
+// src/users/dto/create-user.dto.ts
 
-export class CreateOrderDTO {
-  /**
-   * 注文したいメニューのIDの配列
-   * @example [1, 3, 5]
-   * メニューはidで管理
-   * 例の場合は、IDが1, 3, 5のメニューを注文することを意味します。
-   */
-  @IsArray()
+import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
+
+// ★ クラス名を「CreateUserDto」に統一
+export class CreateUserDto {
+  @IsString()
   @IsNotEmpty()
-  @IsNumber({}, { each: true }) // 配列の各要素が数値であることをバリデーション
-  menuIds: number[];
+  name: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
 }

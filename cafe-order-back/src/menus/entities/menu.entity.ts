@@ -17,6 +17,7 @@ export class Menu {
   @Column() // 価格
   price: number;
 
+
   @Column({ type: 'int', default: 0}) // 現在注文可能か
   stock: number;
 

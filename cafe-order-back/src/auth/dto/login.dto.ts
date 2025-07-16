@@ -1,11 +1,11 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginDTO {
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail({}, { message: '有効なメールアドレスを入力してください。' })
+  @IsNotEmpty({ message: 'メールアドレスは必須です。' })
   email: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'パスワードは必須です。' })
   password: string;
 }
