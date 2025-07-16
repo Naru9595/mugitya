@@ -26,7 +26,10 @@ function ShowCart ({setCartClicked}:{setCartClicked : () => void}) {
                 <div className="m-4 text-xl">
                     合計金額 : xxx円
                 </div>
-                <button className="bg-blue-500 mx-4 p-2 rounded text-white">
+                <button 
+                    className="bg-blue-500 mx-4 p-2 rounded text-white"
+                    onClick={setCartClicked}
+                >
                     注文する
                 </button>
             </div>
