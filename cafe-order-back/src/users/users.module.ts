@@ -1,5 +1,3 @@
-// src/users/users.module.ts
-
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
@@ -12,6 +10,7 @@ import { User } from './entities/user.entity';     // ★ Userエンティティ
   controllers: [UsersController],
   providers: [UsersService],
   // ★ UsersServiceを他のモジュールで使えるようにexportsを追加
+
   exports: [UsersService],
 })
 export class UsersModule {}

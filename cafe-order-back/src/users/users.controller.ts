@@ -41,7 +41,7 @@ export class UsersController {
   /**
    * 自分自身の情報を取得
    */
-  @Get('me')
+  @Get('profile')
   @UseGuards(JwtAuthGuard)
   // ★ 返り値の型を SafeUser に修正
   getProfile(@GetUser() user: User): Promise<SafeUser> {
