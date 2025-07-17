@@ -58,6 +58,34 @@ function AddCart ({setAddClicked}:{setAddClicked : () => void}) {
     );
 }
 
+function OrderCooked ({setReceiveClicked}:{setReceiveClicked: () => void}) {
+    return(
+        <div 
+            className="flex justify-center items-center w-screen h-screen bg-black bg-opacity-30"
+        >
+            <div 
+                className="flex justify-center bg-white w-2/3 rounded p-4 "
+            >
+                <div>
+                    <div 
+                        className="text-xl font-bold"
+                    >
+                        商品が完成しました
+                    </div>
+                    <div className="flex justify-center ">
+                        <button 
+                            className="bg-green-400 text-white rounded p-2 mt-2"
+                            onClick={setReceiveClicked}
+                        >
+                            受け取り完了
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function UserMenu(){
     const [cartClicked,setCartClicked] = useState(false);
     const showCart = () => {
@@ -67,6 +95,11 @@ function UserMenu(){
     const addCart = () => {
         setAddClicked(!addClicked);
     }
+    const [receiveClicked,setReceiveClicked] = useState(true);
+    const reseive = () => {
+        setReceiveClicked(!receiveClicked)
+    }
+
     // 一旦手入力のデータでテスト
     const productsData = [
         {
@@ -98,6 +131,13 @@ function UserMenu(){
     const products = productsData;
     return (
         <>
+            {receiveClicked ? (
+                <div className="fixed top-0 left-0 z-10">
+                    <OrderCooked setReceiveClicked = {() => setReceiveClicked(!receiveClicked)}/>
+                </div>
+            ):(
+                <div></div>
+            )}
             {addClicked ? (
                 <div className="fixed top-0 left-0 z-10">
                     <AddCart setAddClicked = {() => setAddClicked(!addClicked)}/>
