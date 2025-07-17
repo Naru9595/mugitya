@@ -1,5 +1,6 @@
 'use client'
 import {useState} from 'react';
+import { Link } from 'react-router-dom';
 
 import shoppingCart from '../../icons/shoppingCart.svg';
 
@@ -159,6 +160,9 @@ function UserMenu(){
                         <div className="text-blue-700 text-lg font-bold">
                             学食スマートオーダー
                         </div>
+                        <Link to="/signin" className="absolute right-4 text-red-500 hover:text-red-200">
+                            ログアウト
+                        </Link>
                     </div>
                 </div>
                 <div className="mt-20 ml-4 text-lg font-bold">
