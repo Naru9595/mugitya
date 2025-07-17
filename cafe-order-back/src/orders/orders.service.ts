@@ -1,63 +1,43 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+// src/orders/orders.service.ts
+
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order, OrderStatus } from './entities/order.entity';
-import { Menu } from '../menus/entities/menu.entity';
-import { User } from '../users/entities/user.entity';
+import { Order } from './entities/order.entity'; // DB用のOrderエンティティ
 import { CreateOrderDto } from './dto/create-order.dto';
+import { Menu } from '../menus/entities/menu.entity'; // DB用のMenuエンティティ
+
+// 以前のSafeUserの代わりに、api.types.tsからUserをインポートします
+import { User } from '../../types/api.types'; 
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>,
+    private readonly ordersRepository: Repository<Order>,
     @InjectRepository(Menu)
-    private readonly menuRepository: Repository<Menu>,
+    private readonly menusRepository: Repository<Menu>,
   ) {}
 
+  // パラメータの型を、api.types.tsからインポートしたUserにします
   async create(createOrderDto: CreateOrderDto, user: User): Promise<Order> {
-    const { menuIds } = createOrderDto;
-
-    // 1. 注文されたメニューの情報をDBから取得
-    const menus = await this.menuRepository.findByIds(menuIds);
-
-    // 2. 在庫と合計金額を計算
-    let totalPrice = 0;
-    const stockUpdates = new Map<number, number>();
-
-    for (const id of menuIds) {
-      const menu = menus.find(m => m.id === id);
-      if (!menu) {
-        throw new NotFoundException(`ID ${id} のメニューが見つかりません。`);
-      }
-
-      // 在庫数をカウント
-      const currentStock = stockUpdates.get(id) ?? menu.stock;
-      if (currentStock <= 0) {
-        throw new BadRequestException(`${menu.name}は品切れです。`);
-      }
-      stockUpdates.set(id, currentStock - 1);
-      
-      totalPrice += menu.price;
+    
+    const menus = await this.menusRepository.findByIds(createOrderDto.menuIds);
+    if (menus.length !== createOrderDto.menuIds.length) {
+      throw new Error('One or more menus not found');
     }
 
-    // 3. 注文エンティティを作成
-    const newOrder = this.orderRepository.create({
-      user,
-      menus,
+    const totalPrice = menus.reduce((sum, menu) => sum + menu.price, 0);
+
+    const newOrder = this.ordersRepository.create({
       totalPrice,
-      status: OrderStatus.PENDING, // 初期ステータスは「受付待ち」
+      menus,
+      // 渡されたuserオブジェクトのidを使ってリレーションを構築します
+      user: { id: user.id }, 
     });
 
-    // 4. 在庫を更新
-    // 本来はトランザクションを使うべきですが、ここでは簡略化しています
-    for (const [id, newStock] of stockUpdates.entries()) {
-      await this.menuRepository.update(id, { stock: newStock });
-    }
-
-    // 5. 注文をDBに保存
-    return this.orderRepository.save(newOrder);
+    return this.ordersRepository.save(newOrder);
   }
 
-  // ... 他のメソッド（注文履歴取得など）
+  // ... 他のメソッド
 }

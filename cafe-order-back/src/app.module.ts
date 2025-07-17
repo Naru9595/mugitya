@@ -26,8 +26,8 @@ import { Order } from './orders/entities/order.entity';
         host: configService.get<string>('DB_HOST'), // .envのキーと一致させる
         port: configService.get<number>('DB_PORT'), // .envのキーと一致させる
         username: configService.get<string>('DB_USERNAME'), // .envのキーと一致させる
-        password: configService.get<string>('MYSQL_ROOT_PASSWORD'), // .envのキーと一致させる
-        database: configService.get<string>('DB_DATABASE_NAME'), // .envのキーと一致させる
+        password: configService.get<string>('DB_PASSWORD'), // .envのキーと一致させる
+        database: configService.get<string>('DB_DATABASE'), // .envのキーと一致させる
         entities: [User, Menu, Order],
         synchronize: true,
       }),

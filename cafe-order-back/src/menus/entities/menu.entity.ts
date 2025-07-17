@@ -1,6 +1,7 @@
 // src/menus/entities/menu.entity.ts
 
 import { Order } from '../../orders/entities/order.entity'; // 後で多対多リレーションのためにインポート
+import { Order as OrderInterface } from '../../../types/api.types';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToMany } from 'typeorm';
 
 @Entity()
