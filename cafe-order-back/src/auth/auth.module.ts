@@ -1,4 +1,4 @@
-import { Module, Global, forwardRef } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
@@ -11,13 +11,15 @@ import { JwtStrategy } from './jwt.strategy';
 @Global()
 @Module({
   imports: [
-    forwardRef(() => UsersModule),
+    UsersModule,
     PassportModule,
-    ConfigModule,
+    ConfigModule, // .envファイルを使うために必要
     JwtModule.registerAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule], // ConfigServiceをこの中で使えるようにする
       inject: [ConfigService],
+      // ★★★ここが最重要の修正ポイント★★★
       useFactory: async (configService: ConfigService) => ({
+        //secret: configService.get<string>('JWT_SECRET'),
         secret: 'KIMITO_SICK', 
         signOptions: { expiresIn: '1h' },
       }),

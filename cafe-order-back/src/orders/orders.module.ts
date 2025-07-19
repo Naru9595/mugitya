@@ -1,16 +1,22 @@
+// src/orders/orders.module.ts の修正版
+
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm'; // TypeOrmModuleをインポート
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
-import { Order } from './entities/order.entity'; // Orderエンティティをインポート
-import { Menu } from '../menus/entities/menu.entity'; // Menuエンティティもインポート
-import { UsersModule } from '../users/users.module'; // UsersServiceを使うためにインポート
+import { Order } from './entities/order.entity';
+import { Menu } from '../menus/entities/menu.entity';
+import { UsersModule } from '../users/users.module';
+import { AuthModule } from '../auth/auth.module'; // ★★★最重要：この行を追加します★★★
 
 @Module({
   imports: [
-    // このモジュールで使うエンティティをすべて登録します
-    TypeOrmModule.forFeature([Order, Menu]), // ★OrderとMenuの両方を登録
-    UsersModule, // ★UsersServiceを使うために追加
+    // ★★★ここに AuthModule を追加します★★★
+    // これにより、OrdersModule が JwtAuthGuard を正しく利用できるようになります。
+    AuthModule,
+    
+    TypeOrmModule.forFeature([Order, Menu]),
+    UsersModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],
