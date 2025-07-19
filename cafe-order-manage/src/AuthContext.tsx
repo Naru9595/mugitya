@@ -1,7 +1,10 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import type { ReactNode } from 'react';
+// src/AuthContext.tsx の最終解決コード
+
+import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiClient from './api';
 
+// ユーザー情報の型定義 (変更なし)
 interface User {
   id: number;
   email: string;
@@ -22,19 +25,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
+  // アプリケーション起動時のユーザーチェック
   useEffect(() => {
     const checkUser = async () => {
-      const token = localStorage.getItem('accessToken');
+      // ★★★【最終修正】'access_token' (スネークケース) でトークンを読み込みます
+      const token = localStorage.getItem('access_token');
       if (token) {
         try {
-          apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          // インターセプターがヘッダーを付与するので、ここでの直接操作は不要です
           const response = await apiClient.get<User>('/users/profile');
           setUser(response.data);
         } catch (error) {
-          console.error('Failed to fetch user', error);
-          localStorage.removeItem('accessToken');
-          delete apiClient.defaults.headers.common['Authorization'];
+          console.error('起動時のユーザー情報取得に失敗。トークンを削除します。', error);
+          localStorage.removeItem('access_token');
         }
       }
       setIsLoading(false);
@@ -42,28 +47,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUser();
   }, []);
 
+  // ログイン処理
   const login = async (email: string, password: string): Promise<User> => {
     try {
       const response = await apiClient.post('/auth/login', { email, password });
       const { access_token } = response.data;
-      
-      localStorage.setItem('accessToken', access_token);
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
+      if (!access_token || typeof access_token !== 'string') {
+        throw new Error('サーバーから有効なトークンが返されませんでした。');
+      }
+
+      // ★★★【最終修正】'access_token' (スネークケース) でトークンを保存します
+      localStorage.setItem('access_token', access_token);
 
       const userResponse = await apiClient.get<User>('/users/profile');
       setUser(userResponse.data);
+      
+      navigate('/userMenu');
       return userResponse.data;
 
     } catch (error) {
-      console.error('Login failed', error);
+      console.error('ログインに失敗しました:', error);
+      localStorage.removeItem('access_token');
+      setUser(null);
       throw error;
     }
   };
 
+  // ログアウト処理
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    delete apiClient.defaults.headers.common['Authorization'];
+    // ★★★【最終修正】'access_token' (スネークケース) でトークンを削除します
+    localStorage.removeItem('access_token');
     setUser(null);
+    navigate('/');
   };
 
   const value = { user, login, logout, isLoading };
@@ -75,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// カスタムフック (変更なし)
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

@@ -11,23 +11,17 @@ import { Order } from './orders/entities/order.entity';
 
 @Module({
   imports: [
-    // .env ファイルを読み込むための設定
-    ConfigModule.forRoot({
-      isGlobal: true, // アプリケーション全体でConfigModuleを使えるようにする
-      envFilePath: '.env', // .envファイルを指定
-    }),
-    
-    // データベース接続設定
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
-        host: configService.get<string>('DB_HOST'), // .envのキーと一致させる
-        port: configService.get<number>('DB_PORT'), // .envのキーと一致させる
-        username: configService.get<string>('DB_USERNAME'), // .envのキーと一致させる
-        password: configService.get<string>('DB_PASSWORD'), // .envのキーと一致させる
-        database: configService.get<string>('DB_DATABASE'), // .envのキーと一致させる
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('MYSQL_ROOT_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE_NAME'),
         entities: [User, Menu, Order],
         synchronize: true,
       }),

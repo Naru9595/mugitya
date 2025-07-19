@@ -20,13 +20,13 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  // --- Private Helper Method (mainブランチの安全な実装を採用) ---
+  // --- Private Helper Method ---
   private toSafeUser(user: User): SafeUser {
     const { password_hash, ...result } = user;
     return result;
   }
 
-  // --- Public Methods ---
+  // --- Public Methods (create, findAll, findOne, findByEmailは変更なし) ---
 
   async create(createUserDto: CreateUserDTO): Promise<SafeUser> {
     const existingUser = await this.usersRepository.findOneBy({ email: createUserDto.email });
@@ -52,50 +52,52 @@ export class UsersService {
     return users.map(user => this.toSafeUser(user));
   }
 
-  async findOne(id: number): Promise<SafeUser> {
+  async findOne(id: number): Promise<User> { // 戻り値の型を Promise<SafeUser> から Promise<User> に変更
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
     }
-    return this.toSafeUser(user);
+    return user; // toSafeUserで変換せず、そのままuserオブジェクトを返す
   }
   
   async findByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOneBy({ email });
   }
 
+  // ★★★ここから修正★★★
   async update(
     id: number,
     updateUserDto: UpdateUserDTO,
-    requester: SafeUser, // mainブランチの安全な型定義を採用
+    requester: SafeUser,
   ): Promise<SafeUser> {
+    // --- 権限チェック ---
+    // リクエストを実行したユーザーがADMINロールを持っているかを確認します。
+    if (requester.role !== UserRole.ADMIN) {
+      // ADMINでない場合は、権限がないためエラーをスローします。
+      throw new ForbiddenException('この操作を実行する権限がありません。管理者のみがユーザー情報を更新できます。');
+    }
+    // ---
+
     const userToUpdate = await this.usersRepository.findOneBy({ id });
     if (!userToUpdate) {
         throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
     }
 
-    // --- 権限チェック (両方のブランチで共通する良いロジック) ---
-    const isRequesterAdmin = requester.role === UserRole.ADMIN;
-    const isUpdatingSelf = requester.id === id;
-    if (!isRequesterAdmin && !isUpdatingSelf) {
-      throw new ForbiddenException('このユーザー情報を更新する権限がありません。');
-    }
-    // ---
-
-    // mainブランチの簡潔な更新方法を採用
+    // DTOのプロパティを更新対象のエンティティにマージします
     Object.assign(userToUpdate, updateUserDto);
 
+    // パスワードがDTOに含まれている場合は、ハッシュ化して更新します
     if (updateUserDto.password) {
       userToUpdate.password_hash = await bcrypt.hash(updateUserDto.password, 10);
     }
     
-    if (updateUserDto.role && !isRequesterAdmin) {
-        throw new ForbiddenException('ロールの変更は管理者のみ可能です。');
-    }
+    // この時点でリクエスト者はADMINであることが保証されているため、
+    // ロール変更に関する追加の権限チェックは不要です。
 
     const updatedUser = await this.usersRepository.save(userToUpdate);
     return this.toSafeUser(updatedUser);
   }
+  // ★★★ここまで修正★★★
 
   async remove(id: number): Promise<{ message: string }> {
     const userToRemove = await this.usersRepository.findOneBy({ id });

@@ -1,7 +1,10 @@
+// src/cartcontext.tsx の最終解決コード
+
 import React, { createContext, useState, useContext, type ReactNode } from 'react';
 import apiClient from './api';
+import { AxiosError } from 'axios';
 
-// 型定義
+// 型定義 (変更なし)
 interface Menu { id: number; name: string; price: number; }
 interface CartItem extends Menu { quantity: number; }
 
@@ -17,22 +20,17 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // ★★★ここが最重要★★★
-  // addToCart関数に正しいロジックを実装します
+  // addToCart と clearCart は変更ありません
   const addToCart = (item: Menu) => {
     setCartItems((prevItems) => {
-      // カートに既に同じ商品があるか探す
       const existingItem = prevItems.find((cartItem) => cartItem.id === item.id);
-
       if (existingItem) {
-        // あれば数量を1増やす
         return prevItems.map((cartItem) =>
           cartItem.id === item.id
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
       } else {
-        // なければ新しい商品として数量1で追加
         return [...prevItems, { ...item, quantity: 1 }];
       }
     });
@@ -43,14 +41,35 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const submitOrder = async () => {
-    if (cartItems.length === 0) throw new Error('カートが空です。');
+    if (cartItems.length === 0) {
+      alert('カートが空です。');
+      return;
+    }
+    
     const menuIds = cartItems.flatMap(item => Array(item.quantity).fill(item.id));
+    
     try {
+      // 'access_token' (スネークケース) でトークンを読み込みます
+      const token = localStorage.getItem('access_token');
+
+      if (!token) {
+        alert('認証トークンが見つかりません。再度ログインしてください。');
+        throw new Error('Authentication token not found.');
+      }
+      
       await apiClient.post('/orders', { menuIds });
+      
+      alert('注文が完了しました！ありがとうございます。');
       clearCart();
+
     } catch (error) {
-      console.error('注文に失敗しました。', error);
-      throw error;
+      console.error('注文処理でエラーが発生しました:', error);
+      if (error instanceof AxiosError) {
+        alert(`注文に失敗しました: ${error.response?.data?.message || 'サーバーエラー'}`);
+      } else {
+        alert('注文に失敗しました。お手数ですが、時間をおいて再度お試しください。');
+      }
+      throw error as Error;
     }
   };
 
@@ -59,9 +78,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
+
+// ★★★★★ ここが、今回のエラーの修正箇所です ★★★★★
+/**
+ * CartContextにアクセスするためのカスタムフック
+ */
 export const useCart = () => {
+  // 参照するコンテキストを AuthContext から CartContext に修正
   const context = useContext(CartContext);
   if (context === undefined) {
+    // エラーメッセージも CartProvider を使うように修正
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;

@@ -11,7 +11,6 @@ interface Menu {
 interface CartItem extends Menu {
   quantity: number;
 }
-
 const Cart = () => {
   const { cartItems, submitOrder } = useCart();
   const [isLoading, setIsLoading] = useState(false);

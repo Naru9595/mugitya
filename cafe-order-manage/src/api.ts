@@ -1,3 +1,5 @@
+// src/api.ts の最終解決コード
+
 import axios from 'axios';
 
 // NestJSサーバーのベースURL
@@ -13,13 +15,12 @@ const apiClient = axios.create({
 
 /**
  * JWTトークンをリクエストヘッダーに自動的に追加するインターセプター
- * ログイン後に取得したトークンをlocalStorageから読み込み、
- * すべてのリクエストに 'Authorization: Bearer <token>' を付与します。
  */
 apiClient.interceptors.request.use(
   (config) => {
-    // localStorageからトークンを取得
-    const token = localStorage.getItem('accessToken');
+    // ★★★【最終修正】localStorageから 'access_token' (スネークケース) でトークンを取得します
+    const token = localStorage.getItem('access_token');
+    
     if (token) {
       // トークンが存在すれば、Authorizationヘッダーを設定
       config.headers.Authorization = `Bearer ${token}`;
