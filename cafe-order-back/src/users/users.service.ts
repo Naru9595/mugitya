@@ -1,132 +1,116 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+// src/users/users.service.ts
+
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserRole } from './entities/user.entity';
+import { User, UserRole, SafeUser } from './entities/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 
-// (1) @Injectable() デコレータ
 @Injectable()
 export class UsersService {
-  // (2) コンストラクタと依存性の注入 (Dependency Injection)
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
 
-  // (3) ユーザー作成メソッド (Create)
-  async create(createUserDto: CreateUserDTO): Promise<Omit<User, 'password_hash'>> {
-    const { email, password } = createUserDto;
+  // --- Private Helper Method (mainブランチの安全な実装を採用) ---
+  private toSafeUser(user: User): SafeUser {
+    const { password_hash, ...result } = user;
+    return result;
+  }
 
-    // メールアドレスの重複チェック
-    const existingUser = await this.usersRepository.findOneBy({ email });
+  // --- Public Methods ---
+
+  async create(createUserDto: CreateUserDTO): Promise<SafeUser> {
+    const existingUser = await this.usersRepository.findOneBy({ email: createUserDto.email });
     if (existingUser) {
       throw new ConflictException('このメールアドレスは既に使用されています');
     }
 
-    const saltRounds = 10;
-    const password_hash = await bcrypt.hash(password, saltRounds);
+    const password_hash = await bcrypt.hash(createUserDto.password, 10);
 
     const newUser = this.usersRepository.create({
       ...createUserDto,
       password_hash,
-      // デフォルトロールはここで設定してみる
-      role: UserRole.CUSTOMER, 
+      role: UserRole.CUSTOMER,
     });
-    // ユーザーをデータベースに保存
-    const savedUser = await this.usersRepository.save(newUser); //非同期
     
-    // パスワードハッシュをレスポンスから除外して返す
-    const { password_hash: _, ...result } = savedUser;
-    return result;
+    const savedUser = await this.usersRepository.save(newUser);
+    
+    return this.toSafeUser(savedUser);
   }
 
-  // (4) 全ユーザー取得メソッド (Read)
-  async findAll(): Promise<User[]> {
-    // 【注意】パスワードハッシュを含んでしまうため、実際にはselectでカラムを指定するべき
-    return this.usersRepository.find();
+  async findAll(): Promise<SafeUser[]> {
+    const users = await this.usersRepository.find();
+    return users.map(user => this.toSafeUser(user));
   }
 
-  // (5) IDによる単一ユーザー取得メソッド (Read)
-  async findOne(id: number): Promise<User> {
+  async findOne(id: number): Promise<SafeUser> {
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
     }
-    return user;
+    return this.toSafeUser(user);
   }
   
-  // (6) メールアドレスによる単一ユーザー取得メソッド (AuthService向け)
   async findByEmail(email: string): Promise<User | null> {
-    // findOneByは見つからない場合nullを返すので、例外をスローしない
     return this.usersRepository.findOneBy({ email });
   }
 
-  // (7) ユーザー更新メソッド (Update)
-  async update(id: number, updateUserDto: UpdateUserDTO): Promise<User> {
-    // 既存ユーザーの存在確認
-    const existingUser = await this.findOne(id);
-    
-    // updateUserDtoからpasswordを分離
-    const { password, ...otherUpdates } = updateUserDto;
-    
-    // パスワードが更新される場合はハッシュ化
-    let updateData: any = { ...otherUpdates };
-    if (password) {
-      const saltRounds = 10;
-      updateData.password_hash = await bcrypt.hash(password, saltRounds);
+  async update(
+    id: number,
+    updateUserDto: UpdateUserDTO,
+    requester: SafeUser, // mainブランチの安全な型定義を採用
+  ): Promise<SafeUser> {
+    const userToUpdate = await this.usersRepository.findOneBy({ id });
+    if (!userToUpdate) {
+        throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
+    }
+
+    // --- 権限チェック (両方のブランチで共通する良いロジック) ---
+    const isRequesterAdmin = requester.role === UserRole.ADMIN;
+    const isUpdatingSelf = requester.id === id;
+    if (!isRequesterAdmin && !isUpdatingSelf) {
+      throw new ForbiddenException('このユーザー情報を更新する権限がありません。');
+    }
+    // ---
+
+    // mainブランチの簡潔な更新方法を採用
+    Object.assign(userToUpdate, updateUserDto);
+
+    if (updateUserDto.password) {
+      userToUpdate.password_hash = await bcrypt.hash(updateUserDto.password, 10);
     }
     
-    // preloadを使用してエンティティを更新
-    const user = await this.usersRepository.preload({
-      id: id,
-      ...updateData,
-    });
-    
-    if (!user) {
-      throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
+    if (updateUserDto.role && !isRequesterAdmin) {
+        throw new ForbiddenException('ロールの変更は管理者のみ可能です。');
     }
-    
-    return this.usersRepository.save(user);
+
+    const updatedUser = await this.usersRepository.save(userToUpdate);
+    return this.toSafeUser(updatedUser);
   }
 
-  // (8) ユーザー削除メソッド (Delete)
   async remove(id: number): Promise<{ message: string }> {
-    const user = await this.findOne(id); // 存在チェック
-    await this.usersRepository.remove(user);
+    const userToRemove = await this.usersRepository.findOneBy({ id });
+    if (!userToRemove) {
+        throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
+    }
+    await this.usersRepository.remove(userToRemove);
     return { message: `ID "${id}" のユーザーを削除しました` };
   }
-    // (9) ロール確認メソッド (ここから追記)
 
-  /**
-   * 指定されたIDのユーザーが特定のロールを持っているかを確認する汎用メソッド
-   * @param userId チェックするユーザーのID
-   * @param role 確認したいロール
-   * @returns ロールが一致すれば true, そうでなければ false
-   */
-  async checkUserRole(userId: number, role: UserRole): Promise<boolean> {
-    // findOneメソッドを再利用してユーザーを取得
-    const user = await this.findOne(userId);
-    // ユーザーのロールが指定されたロールと一致するかを返す
-    return user.role === role;
-  }
-
-  /**
-   * 指定されたIDのユーザーが管理者(ADMIN)かどうかをチェックするヘルパーメソッド
-   * @param userId チェックするユーザーのID
-   * @returns 管理者であれば true, そうでなければ false
-   */
   async isAdmin(userId: number): Promise<boolean> {
-    return this.checkUserRole(userId, UserRole.ADMIN);
-  }
-
-  /**
-   * 指定されたIDのユーザーが顧客(CUSTOMER)かどうかをチェックするヘルパーメソッド
-   * @param userId チェックするユーザーのID
-   * @returns 顧客であれば true, そうでなければ false
-   */
-  async isCustomer(userId: number): Promise<boolean> {
-    return this.checkUserRole(userId, UserRole.CUSTOMER);
+    const user = await this.usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      return false;
+    }
+    return user.role === UserRole.ADMIN;
   }
 }
