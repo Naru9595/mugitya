@@ -24,6 +24,23 @@ export class OrdersController {
     const user = req.user;
     return this.ordersService.create(createOrderDto, user);
   }
+  // ★★★ ここから機能追加 (ユーザー向けAPI) ★★★
+
+  @Get('my-orders') // /orders/my-orders というパス
+  @UseGuards(JwtAuthGuard)
+  findMyOrders(@Req() req: AuthenticatedRequest) {
+    return this.ordersService.findMyOrders(req.user.id);
+  }
+
+  @Delete(':id') // DELETE /orders/:id
+  @UseGuards(JwtAuthGuard)
+  removeMyOrder(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.ordersService.removeMyOrder(id, req.user.id);
+  }
+
 
   // ★★★ ここから機能追加 (管理者向けAPI) ★★★
 
