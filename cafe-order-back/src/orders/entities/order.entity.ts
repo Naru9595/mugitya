@@ -1,7 +1,7 @@
 // src/orders/entities/order.entity.ts
 
-import { User } from '../../users/entities/user.entity'; // Userエンティティをインポート
-import { Menu } from '../../menus/entities/menu.entity'; // Menuエンティティをインポート
+import { User } from '../../users/entities/user.entity';
+import { Menu } from '../../menus/entities/menu.entity';
 import { 
   Entity, 
   PrimaryGeneratedColumn, 
@@ -13,12 +13,12 @@ import {
   Column 
 } from 'typeorm';
 
-// 注文の状態を定義
+// OrderStatus enumは変更なし
 export enum OrderStatus {
-  PENDING = 'pending',       // 受付待ち
-  PROCESSING = 'processing', // 調理中
-  COMPLETED = 'completed',     //完了
-  CANCELLED = 'cancelled',     // キャンセル
+  PENDING = 'pending',
+  PROCESSING = 'processing',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
 }
 
 @Entity()
@@ -26,18 +26,17 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // --- Userとのリレーション定義 (多対1) ---
-  // 1つの注文は、1人のユーザーに紐づく
-  // { eager: true } を付けると、Orderを検索した際に自動でUser情報も取得してくれる
   @ManyToOne(() => User, user => user.orders)
   user: User;
 
-  // --- Menuとのリレーション定義 (多対多) ---
-  // 1つの注文には、複数のメニューが含まれる
   @ManyToMany(() => Menu, menu => menu.orders)
-  @JoinTable() // このデコレータが中間テーブルの作成を指示する
+  @JoinTable()
   menus: Menu[];
   
+  // ★★★ ここに新しい列を追加します ★★★
+  @Column('simple-array') // 'simple-array'は、[1, 2, 2]のような単純な配列を保存する型です
+  menuIds: number[];
+
   @Column({
     type: 'enum',
     enum: OrderStatus,
@@ -45,7 +44,7 @@ export class Order {
   })
   status: OrderStatus;
 
-  @Column() // この注文の合計金額
+  @Column()
   totalPrice: number;
 
   @CreateDateColumn()
