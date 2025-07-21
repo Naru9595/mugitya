@@ -60,4 +60,10 @@ export class OrdersController {
   ) {
     return this.ordersService.update(id, updateOrderDto);
   }
+  @Get('analytics') // GET /orders/analytics
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  getSalesAnalytics() {
+    return this.ordersService.getSalesAnalytics();
+  }
 }

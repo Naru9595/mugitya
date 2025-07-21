@@ -1,5 +1,3 @@
-// src/orders/orders.service.ts
-
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -8,6 +6,13 @@ import { Menu } from '../menus/entities/menu.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+
+export interface SalesAnalytics {
+  totalRevenue: number;
+  totalOrders: number;
+  salesByDate: { date: string; sales: number }[];
+  topSellingItems: { name: string; quantity: number }[];
+}
 
 
 @Injectable()
@@ -122,5 +127,46 @@ export class OrdersService {
 
     await this.ordersRepository.remove(order);
     return { message: `注文ID ${orderId} を受け取り完了にしました。` };
+  }
+   async getSalesAnalytics(): Promise<SalesAnalytics> {
+    // 1. ステータスが 'completed' の注文のみを、関連情報と共に取得
+    const completedOrders = await this.ordersRepository.find({
+      where: { status: OrderStatus.COMPLETED },
+      relations: { menus: true }, // メニュー情報も必要
+    });
+
+    // 2. 総売上と総注文数を計算
+    const totalRevenue = completedOrders.reduce((sum, order) => sum + order.totalPrice, 0);
+    const totalOrders = completedOrders.length;
+
+    // 3. 日別の売上を集計
+    const salesByDateMap = new Map<string, number>();
+    completedOrders.forEach(order => {
+      const date = new Date(order.createdAt).toISOString().split('T')[0]; // YYYY-MM-DD形式
+      const currentSales = salesByDateMap.get(date) || 0;
+      salesByDateMap.set(date, currentSales + order.totalPrice);
+    });
+    const salesByDate = Array.from(salesByDateMap.entries()).map(([date, sales]) => ({ date, sales })).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // 4. 人気商品ランキングを集計
+    const itemSalesMap = new Map<string, number>();
+    completedOrders.forEach(order => {
+      order.menuIds.forEach(menuId => {
+        const menu = order.menus.find(m => m.id === menuId);
+        if (menu) {
+          const currentQuantity = itemSalesMap.get(menu.name) || 0;
+          itemSalesMap.set(menu.name, currentQuantity + 1);
+        }
+      });
+    });
+    const topSellingItems = Array.from(itemSalesMap.entries()).map(([name, quantity]) => ({ name, quantity })).sort((a, b) => b.quantity - a.quantity).slice(0, 5); // 上位5件
+
+    // 5. 計算結果をまとめて返す
+    return {
+      totalRevenue,
+      totalOrders,
+      salesByDate,
+      topSellingItems,
+    };
   }
 }
