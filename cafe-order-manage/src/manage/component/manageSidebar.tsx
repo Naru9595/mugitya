@@ -27,7 +27,7 @@ function ManageSidebar(){
                 </div>
                 <div className="p-4 absolute bottom-4 text-xxs">
                     <div>k00000xx@xxxx.xxx.ac.jp</div>
-                    <a href="./manageSignin" className="w-20 text-red-500 hover:text-red-400">
+                    <a href="./signin" className="w-20 text-red-500 hover:text-red-400">
                         ログアウト
                     </a>
                 </div>
