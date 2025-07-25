@@ -1,13 +1,10 @@
-// frontend/src/components/UserSignup.tsx
-
-import React, { useState } from 'react';
+/import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
 const API_URL = 'http://localhost:3000'; // バックエンドのURL
 
 const UserSignup: React.FC = () => {
-  // ★ nameのstateを削除
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

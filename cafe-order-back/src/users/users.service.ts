@@ -1,5 +1,3 @@
-// src/users/users.service.ts
-
 import {
   Injectable,
   NotFoundException,
@@ -52,7 +50,7 @@ export class UsersService {
     return users.map(user => this.toSafeUser(user));
   }
 
-  async findOne(id: number): Promise<User> { // 戻り値の型を Promise<SafeUser> から Promise<User> に変更
+  async findOne(id: number): Promise<User> { 
     const user = await this.usersRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`ID "${id}" のユーザーは見つかりませんでした`);
@@ -64,8 +62,7 @@ export class UsersService {
     return this.usersRepository.findOneBy({ email });
   }
 
-  // ★★★ここから修正★★★
-  async update(
+    async update(
     id: number,
     updateUserDto: UpdateUserDTO,
     requester: SafeUser,
@@ -90,15 +87,10 @@ export class UsersService {
     if (updateUserDto.password) {
       userToUpdate.password_hash = await bcrypt.hash(updateUserDto.password, 10);
     }
-    
-    // この時点でリクエスト者はADMINであることが保証されているため、
-    // ロール変更に関する追加の権限チェックは不要です。
 
     const updatedUser = await this.usersRepository.save(userToUpdate);
     return this.toSafeUser(updatedUser);
   }
-  // ★★★ここまで修正★★★
-
   async remove(id: number): Promise<{ message: string }> {
     const userToRemove = await this.usersRepository.findOneBy({ id });
     if (!userToRemove) {

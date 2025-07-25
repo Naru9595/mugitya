@@ -1,5 +1,3 @@
-// userResponse.dto.ts
-
 export class UserResponseDTO {
   id: number; // 通番IDはnumber型と仮定
 

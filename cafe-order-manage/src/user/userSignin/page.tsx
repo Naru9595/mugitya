@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // ★ jwt-decodeをインポート
+import { jwtDecode } from 'jwt-decode'; //  jwt-decodeをインポート
 
 const API_URL = 'http://localhost:3000';
 
@@ -11,14 +11,14 @@ const UserSignin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // ★ ローディング状態を追加
+  const [isLoading, setIsLoading] = useState(false); //  ローディング状態を追加
 
-  const navigate = useNavigate(); // ★ 画面遷移用のフック
+  const navigate = useNavigate(); //  画面遷移用のフック
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
-    setIsLoading(true); // ★ ローディング開始
+    setIsLoading(true); //  ローディング開始
 
     try {
       const response = await axios.post(`${API_URL}/auth/login`, {
@@ -30,7 +30,6 @@ const UserSignin: React.FC = () => {
       localStorage.setItem('access_token', access_token);
       console.log('ログイン成功！');
 
-      // --- ★★★ ここからが修正部分 ★★★ ---
 
       // 1. トークンをデコードして、中身（ペイロード）を取り出す
       const decodedPayload = jwtDecode<{ role: string }>(access_token);
@@ -46,7 +45,7 @@ const UserSignin: React.FC = () => {
       console.error('ログイン失敗:', err);
       setError('メールアドレスまたはパスワードが正しくありません。');
     } finally {
-      setIsLoading(false); // ★ 成功・失敗どちらでもローディングを終了
+      setIsLoading(false); //  成功・失敗どちらでもローディングを終了
     }
   };
   

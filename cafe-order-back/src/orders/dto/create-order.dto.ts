@@ -1,4 +1,3 @@
-// src/orders/dto/create-order.dto.ts
 import { IsArray, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateOrderDto {

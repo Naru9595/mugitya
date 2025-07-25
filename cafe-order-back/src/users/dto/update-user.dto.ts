@@ -1,9 +1,8 @@
-// updateUser.dto.ts
 import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
 
 export class UpdateUserDTO {
-  @IsOptional() // この項目は任意（送られてこなくても良い）
+  @IsOptional()
   @IsEmail()
   email?: string;
 

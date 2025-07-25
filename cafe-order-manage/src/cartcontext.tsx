@@ -1,10 +1,8 @@
-// src/cartcontext.tsx の最終解決コード
-
 import React, { createContext, useState, useContext, type ReactNode } from 'react';
 import apiClient from './api';
 import { AxiosError } from 'axios';
 
-// 型定義 (変更なし)
+// 型定義
 interface Menu { id: number; name: string; price: number; }
 interface CartItem extends Menu { quantity: number; }
 
@@ -20,7 +18,6 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // addToCart と clearCart は変更ありません
   const addToCart = (item: Menu) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((cartItem) => cartItem.id === item.id);
@@ -49,7 +46,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const menuIds = cartItems.flatMap(item => Array(item.quantity).fill(item.id));
     
     try {
-      // 'access_token' (スネークケース) でトークンを読み込みます
+
       const token = localStorage.getItem('access_token');
 
       if (!token) {
@@ -79,15 +76,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 };
 
 
-// ★★★★★ ここが、今回のエラーの修正箇所です ★★★★★
 /**
  * CartContextにアクセスするためのカスタムフック
  */
 export const useCart = () => {
-  // 参照するコンテキストを AuthContext から CartContext に修正
   const context = useContext(CartContext);
   if (context === undefined) {
-    // エラーメッセージも CartProvider を使うように修正
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;

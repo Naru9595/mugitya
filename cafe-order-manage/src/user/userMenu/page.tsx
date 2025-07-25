@@ -1,5 +1,3 @@
-// src/user/userMenu/page.tsx (このコードで完全に置き換えてください)
-
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -40,7 +38,7 @@ function OrderHistoryCard({ order, onReceive }: { order: Order; onReceive: (orde
   );
 }
 
-// --- カート表示用のコンポーネント (ユーザー様のコードをそのまま使用) ---
+// --- カート表示用のコンポーネント ---
 function ShowCart ({ setCartClicked, handleOrderSubmit, isLoading }: { setCartClicked : () => void; handleOrderSubmit: () => void; isLoading: boolean; }) {
   const { cartItems } = useCart();
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);

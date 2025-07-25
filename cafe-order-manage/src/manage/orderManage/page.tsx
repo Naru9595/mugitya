@@ -1,9 +1,7 @@
-// src/manage/orderManage/page.tsx
-
 "use client"
 import React, { useState, useEffect } from 'react';
 import ManageSidebar from '../component/manageSidebar';
-import apiClient from '../../api'; // 設定済みのaxiosインスタンス
+import apiClient from '../../api'; 
 
 // --- 型定義 ---
 // 注文ステータスの型
@@ -40,7 +38,6 @@ function OrderCard({
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
-  // ★★★ ここからがTypeScriptエラーの修正です ★★★
   // 1. 各ステータスに対応するアクションを定義したオブジェクトを作成します。
   //    キーの型がOrderStatusであることを Partial<Record<...>> で明示します。
   const actionMap: Partial<Record<OrderStatus, { nextStatus: OrderStatus; text: string }>> = {
@@ -49,7 +46,6 @@ function OrderCard({
   };
   // 2. 現在の注文ステータスに対応するアクションを、上記オブジェクトから安全に取得します。
   const nextAction = actionMap[order.status];
-  // ★★★ ここまでが修正です ★★★
 
   // 数量を計算するヘルパー関数
   const getQuantities = (allMenuIds: number[]): { [key: number]: number } => {

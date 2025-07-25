@@ -1,4 +1,3 @@
-// src/orders/dto/update-order.dto.ts
 import { IsEnum, IsNotEmpty } from 'class-validator';
 import { OrderStatus } from '../entities/order.entity';
 

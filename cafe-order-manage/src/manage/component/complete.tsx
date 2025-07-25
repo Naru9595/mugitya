@@ -1,10 +1,8 @@
 import React from 'react';
-
-// Propsの型定義をより正確に
 interface ProductType {
     id: string;
     name: string;
-    isCompleted: boolean; // 新しく追加するプロパティ
+    isCompleted: boolean; 
 }
 
 interface CompleteProps {

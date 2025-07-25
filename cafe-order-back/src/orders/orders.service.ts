@@ -24,7 +24,6 @@ export class OrdersService {
     private readonly menusRepository: Repository<Menu>,
   ) {}
 
-  // createメソッドは変更ありません
   async create(createOrderDto: CreateOrderDto, user: User): Promise<Order> {
     const { menuIds } = createOrderDto;
     if (menuIds.length === 0) {
@@ -59,10 +58,9 @@ export class OrdersService {
    */
   async findAll(): Promise<Order[]> {
     return this.ordersRepository.find({
-      // ★★★ この部分が 'menus: true' となっているか、再度ご確認ください ★★★
       relations: {
         user: true,
-        menus: true, // 'orderItems' ではなく、'menus' が正しいプロパティ名です
+        menus: true, 
       },
       order: {
         createdAt: 'DESC',
@@ -84,7 +82,7 @@ export class OrdersService {
     return this.ordersRepository.save(order);
     
   }
-    // ★★★ ここから機能追加 ★★★
+
 
   /**
    * 特定のユーザーの注文履歴を取得するメソッド

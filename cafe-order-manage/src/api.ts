@@ -1,5 +1,3 @@
-// src/api.ts の最終解決コード
-
 import axios from 'axios';
 
 // NestJSサーバーのベースURL
@@ -18,7 +16,6 @@ const apiClient = axios.create({
  */
 apiClient.interceptors.request.use(
   (config) => {
-    // ★★★【最終修正】localStorageから 'access_token' (スネークケース) でトークンを取得します
     const token = localStorage.getItem('access_token');
     
     if (token) {

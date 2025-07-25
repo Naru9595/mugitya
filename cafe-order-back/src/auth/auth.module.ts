@@ -17,10 +17,9 @@ import { JwtStrategy } from './jwt.strategy';
     JwtModule.registerAsync({
       imports: [ConfigModule], // ConfigServiceをこの中で使えるようにする
       inject: [ConfigService],
-      // ★★★ここが最重要の修正ポイント★★★
       useFactory: async (configService: ConfigService) => ({
         //secret: configService.get<string>('JWT_SECRET'),
-        secret: 'KIMITO_SICK', 
+        secret: 'secret', //今回は簡単のためにハードコード 
         signOptions: { expiresIn: '1h' },
       }),
     }),

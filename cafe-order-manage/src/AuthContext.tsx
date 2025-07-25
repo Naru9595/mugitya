@@ -1,10 +1,8 @@
-// src/AuthContext.tsx の最終解決コード
-
 import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from './api';
 
-// ユーザー情報の型定義 (変更なし)
+// ユーザー情報の型定義
 interface User {
   id: number;
   email: string;
@@ -30,7 +28,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // アプリケーション起動時のユーザーチェック
   useEffect(() => {
     const checkUser = async () => {
-      // ★★★【最終修正】'access_token' (スネークケース) でトークンを読み込みます
       const token = localStorage.getItem('access_token');
       if (token) {
         try {
@@ -57,7 +54,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('サーバーから有効なトークンが返されませんでした。');
       }
 
-      // ★★★【最終修正】'access_token' (スネークケース) でトークンを保存します
       localStorage.setItem('access_token', access_token);
 
       const userResponse = await apiClient.get<User>('/users/profile');
@@ -76,7 +72,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // ログアウト処理
   const logout = () => {
-    // ★★★【最終修正】'access_token' (スネークケース) でトークンを削除します
     localStorage.removeItem('access_token');
     setUser(null);
     navigate('/');
@@ -91,7 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// カスタムフック (変更なし)
+// カスタムフック
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

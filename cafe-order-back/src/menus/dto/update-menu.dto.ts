@@ -1,4 +1,3 @@
-// src/menus/dto/update-menu.dto.ts
 import { IsString, IsNumber, IsOptional, IsBoolean } from 'class-validator';
 
 export class UpdateMenuDto {

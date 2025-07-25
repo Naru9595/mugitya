@@ -1,5 +1,3 @@
-// src/orders/entities/order.entity.ts
-
 import { User } from '../../users/entities/user.entity';
 import { Menu } from '../../menus/entities/menu.entity';
 import { 
@@ -13,7 +11,7 @@ import {
   Column 
 } from 'typeorm';
 
-// OrderStatus enumは変更なし
+
 export enum OrderStatus {
   PENDING = 'pending',
   PROCESSING = 'processing',
@@ -33,8 +31,7 @@ export class Order {
   @JoinTable()
   menus: Menu[];
   
-  // ★★★ ここに新しい列を追加します ★★★
-  @Column('simple-array') // 'simple-array'は、[1, 2, 2]のような単純な配列を保存する型です
+  @Column('simple-array') // 'simple-array'は、[1, 2, 2]のような単純な配列を保存する型
   menuIds: number[];
 
   @Column({

@@ -1,5 +1,3 @@
-// src/user/userMenu/page.tsx (このファイル一つで完結します)
-
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,13 +6,13 @@ import { useCart } from '../cartcontext';
 import { useAuth } from '../AuthContext';
 import Cart from './cart';
 
-// --- 型定義 (変更なし) ---
+// --- 型定義 ---
 interface Menu { id: number; name: string; description: string; price: number; stock: number; }
 type OrderStatusType = 'pending' | 'processing' | 'completed' | 'cancelled';
 interface OrderMenuItem { id: number; name: string; }
 interface Order { id: number; status: OrderStatusType; totalPrice: number; createdAt: string; menus: OrderMenuItem[]; menuIds: number[]; }
 
-// --- 注文履歴カード コンポーネント (変更なし) ---
+// --- 注文履歴カード コンポーネント ---
 const statusMap: Record<OrderStatusType, string> = { pending: '注文済み', processing: '調理中', completed: '調理完了', cancelled: 'キャンセル' };
 function OrderHistoryCard({ order, onReceive }: { order: Order; onReceive: (orderId: number) => Promise<void>; }) {
   const [isReceiving, setIsReceiving] = useState(false);
@@ -41,7 +39,6 @@ function OrderHistoryCard({ order, onReceive }: { order: Order; onReceive: (orde
 
 // --- メインコンポーネント ---
 function UserMenu() {
-  // ★★★ ここからが診断ログの本番です ★★★
   console.log('%c[UserMenu] コンポーネントのレンダリングを開始します。', 'color: green; font-weight: bold;');
 
   const [activeView, setActiveView] = useState<'menu' | 'orders'>('menu');

@@ -1,20 +1,18 @@
-// src/menus/menus.module.ts
-
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm'; // TypeOrmModuleをインポート
+import { TypeOrmModule } from '@nestjs/typeorm'; 
 import { MenusService } from './menus.service';
 import { MenusController } from './menus.controller';
 
-import { Menu } from './entities/menu.entity'; // Menuエンティティをインポート
+import { Menu } from './entities/menu.entity'; 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Menu]), // ★この行を追加
+    TypeOrmModule.forFeature([Menu]), 
   ],
 
 
   controllers: [MenusController],
   providers: [MenusService],
-  exports: [MenusService], // 他のモジュールで使う可能性があればエクスポート
+  exports: [MenusService],
 })
 export class MenusModule {}

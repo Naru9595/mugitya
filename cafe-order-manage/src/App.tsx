@@ -1,10 +1,8 @@
-// src/App.tsx の最終解決コード
-
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider } from './AuthContext';
 import { CartProvider } from './cartcontext';
 
-// 各ページコンポーネントのインポート (変更なし)
+// 各ページコンポーネントのインポート
 import ManageSignin from "./manage/manageSignin/page";
 import ManageSignup from "./manage/manageSignup/page";
 import MenuManage from './manage/menuManage/page';
@@ -15,7 +13,7 @@ import UserSignin from './user/userSignin/page';
 import UserSignup from './user/userSignup/page';
 import UserMenu from './user/userMenu/page';
 
-// TopPageコンポーネント (変更なし)
+// TopPageコンポーネント
 function TopPage() {
   return (
     <div className="relative w-screen h-screen bg-white">
@@ -35,18 +33,9 @@ function TopPage() {
 
 function App() {
   return (
-    // ★★★★★ これが正しいコンポーネントの階層です ★★★★★
-
-    // 1. まず、<Router>でアプリケーション全体をラップします。
-    //    これにより、内部の全てのコンポーネントでページ遷移機能が使えるようになります。
     <Router>
-      {/* 2. 次に、<AuthProvider>でラップします。
-          これにより、認証状態を全てのページで共有できます。*/}
       <AuthProvider>
-        {/* 3. 最後に、<CartProvider>でラップします。
-            これにより、カート情報を全てのページで共有できます。*/}
         <CartProvider>
-          {/* 4. <Routes>の中で、各ページの表示を定義します。*/}
           <Routes>
             {/* 管理者向けページ */}
             <Route path="/manageSignin" element={<ManageSignin />} />

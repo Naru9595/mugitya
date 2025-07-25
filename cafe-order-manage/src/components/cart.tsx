@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-// ★修正: 正しいパスからインポートします
 import { useCart } from '../cartcontext';
 
-// このコンポーネントで使う型を定義します
 interface Menu {
   id: number;
   name: string;

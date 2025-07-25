@@ -1,10 +1,11 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common'; // ★ Loggerをインポートします
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common'; 
 import { UsersService } from '../users/users.service';
 import { SafeUser, User } from '../users/entities/user.entity';
 
 @Injectable()
+//以下ロガーの処理
 export class JwtStrategy extends PassportStrategy(Strategy) {
   // ★ Loggerのインスタンスを作成します。これにより、コンソールに色付きで分かりやすいログが出力されます。
   private readonly logger = new Logger(JwtStrategy.name);
@@ -15,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: 'KIMITO_SICK', // 診断のため、秘密鍵はハードコードしたままにします
+      secretOrKey: 'secret', // 簡単のためハードコード
     });
     this.logger.log('JwtStrategy has been initialized.'); // ストラテジーが初期化されたことをログに出力
   }

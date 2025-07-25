@@ -33,7 +33,6 @@ export class UsersController {
   @Get()
   @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  // ★ 返り値の型を SafeUser[] に修正
   findAll(): Promise<SafeUser[]> {
     return this.usersService.findAll();
   }
@@ -43,19 +42,16 @@ export class UsersController {
    */
   @Get('profile')
   @UseGuards(JwtAuthGuard)
-  // ★ 返り値の型を SafeUser に修正
   getProfile(@GetUser() user: User): Promise<SafeUser> {
     return this.usersService.findOne(user.id);
   }
 
   /**
    * 特定のユーザー情報を取得する（管理者限定）
-   * このメソッドは前回のやり取りで抜けていたかもしれませんので、追加します。
    */
   @Get(':id')
   @Roles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  // ★ 返り値の型を SafeUser に修正
   findOne(@Param('id', ParseIntPipe) id: number): Promise<SafeUser> {
     return this.usersService.findOne(id);
   }
@@ -65,11 +61,10 @@ export class UsersController {
    */
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  // ★ 返り値の型を SafeUser に修正
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDTO,
-    @GetUser() requester: SafeUser, // ★ この引数の型もSafeUserに
+    @GetUser() requester: SafeUser, 
   ): Promise<SafeUser> {
     return this.usersService.update(id, updateUserDto, requester);
   }

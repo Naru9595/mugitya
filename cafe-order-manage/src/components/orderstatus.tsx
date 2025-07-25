@@ -1,5 +1,3 @@
-// src/OrderStatus.tsx (新規作成)
-
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api';
 

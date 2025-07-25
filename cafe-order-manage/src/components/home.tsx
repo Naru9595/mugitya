@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../AuthContext';
 import MenuList from './menulist';
-import Cart from './cart'; // ★ Cartコンポーネントをインポート
+import Cart from './cart'; 
 
 const Home = () => {
   const { user, logout } = useAuth();

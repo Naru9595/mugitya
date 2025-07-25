@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDTO } from '../users/dto/create-user.dto'; // ユーザー登録用のDTO
-import { User } from '../users/entities/user.entity'; // Userエンティティ
+import { CreateUserDTO } from '../users/dto/create-user.dto'; 
+import { User } from '../users/entities/user.entity'; 
 
 @Injectable()
 export class AuthService {

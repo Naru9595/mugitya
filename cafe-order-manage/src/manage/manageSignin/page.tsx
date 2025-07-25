@@ -1,5 +1,3 @@
-// src/manage/menuManage/page.tsx
-
 "use client"
 import React, { useState, useEffect } from 'react';
 import ManageSidebar from '../component/manageSidebar';
@@ -17,7 +15,7 @@ interface Menu {
 // 新規作成・更新時にAPIに送るデータの型
 type MenuDto = Omit<Menu, 'id' | 'description'>;
 
-// --- 新規メニュー追加モーダル (変更なし) ---
+// --- 新規メニュー追加モーダル ---
 function AddMenu({ 
   onClose, 
   onAddMenu 
@@ -74,7 +72,6 @@ function AddMenu({
   );
 }
 
-// ★★★ メニュー編集モーダル (新規実装) ★★★
 function EditMenu({
   menu,
   onClose,
@@ -134,7 +131,7 @@ function EditMenu({
   );
 }
 
-// ★★★ 削除確認モーダル (新規実装) ★★★
+
 function DeleteConfirmationModal({
   menu,
   onClose,
@@ -217,7 +214,7 @@ function MenuManage() {
     }
   };
 
-  // ★★★ メニューを更新する処理 (新規実装) ★★★
+  // メニューを更新する処理
   const handleUpdateMenu = async (id: number, updatedMenu: MenuDto) => {
     try {
       // PATCHリクエストで特定のIDのメニューを更新
@@ -229,7 +226,7 @@ function MenuManage() {
     }
   };
 
-  // ★★★ メニューを削除する処理 (新規実装) ★★★
+  // メニューを削除する処理 (新規実装)
   const handleDeleteMenu = async (id: number) => {
     try {
       // DELETEリクエストで特定のIDのメニューを削除

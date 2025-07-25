@@ -1,4 +1,3 @@
-// src/menus/dto/create-menu.dto.ts
 import { IsString, IsNotEmpty, IsNumber, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreateMenuDto {
@@ -7,7 +6,7 @@ export class CreateMenuDto {
   name: string;
 
   @IsString()
-  @IsOptional() // 省略可能
+  @IsOptional()
   description?: string;
 
   @IsNumber()
